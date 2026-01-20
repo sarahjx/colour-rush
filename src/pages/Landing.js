@@ -5,6 +5,7 @@ import './Landing.css';
 function Landing() {
   const [username, setUsername] = useState('');
   const titleRef = useRef(null);
+  const buttonGroupRef = useRef(null);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -12,6 +13,25 @@ function Landing() {
         titleRef.current,
         { opacity: 0, y: -20 },
         { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (buttonGroupRef.current) {
+      const buttons = buttonGroupRef.current.children;
+      gsap.fromTo(
+        buttons,
+        { opacity: 0, y: 20, scale: 0.8 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          scale: 1, 
+          duration: 0.6, 
+          ease: 'back.out(1.7)',
+          stagger: 0.15,
+          delay: 0.5
+        }
       );
     }
   }, []);
@@ -56,7 +76,7 @@ function Landing() {
               />
             </div>
 
-            <div className="button-group">
+            <div ref={buttonGroupRef} className="button-group">
               <button 
                 className="btn btn-create" 
                 onClick={handleCreate}
