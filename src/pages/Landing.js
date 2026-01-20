@@ -42,8 +42,8 @@ function Landing() {
     setUsername(e.target.value);
   };
 
-  const handleCreate = () => {
-    const roomCode = createRoom();
+  const handleCreate = async () => {
+    const roomCode = await createRoom();
     console.log('Room created with code:', roomCode);
   };
 
