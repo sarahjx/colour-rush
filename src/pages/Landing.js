@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
+import Button from '../components/Button';
 import './Landing.css';
 
 function Landing({ gameState }) {
@@ -60,24 +61,6 @@ function Landing({ gameState }) {
     console.log('Practice mode with username:', username);
   };
 
-  const handleButtonHover = (e) => {
-    if (!e.currentTarget.disabled) {
-      gsap.to(e.currentTarget, {
-        scale: 1.05,
-        duration: 0.2,
-        ease: 'power2.out'
-      });
-    }
-  };
-
-  const handleButtonLeave = (e) => {
-    gsap.to(e.currentTarget, {
-      scale: 1,
-      duration: 0.2,
-      ease: 'power2.out'
-    });
-  };
-
   const handleInputFocus = () => {
     if (inputRef.current) {
       gsap.to(inputRef.current, {
@@ -125,33 +108,30 @@ function Landing({ gameState }) {
             </div>
 
             <div ref={buttonGroupRef} className="button-group">
-              <button 
-                className="btn btn-create" 
+              <Button 
+                variant="primary"
+                className="btn-create"
                 onClick={handleCreate}
-                onMouseEnter={handleButtonHover}
-                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Create Room
-              </button>
-              <button 
-                className="btn btn-join" 
+              </Button>
+              <Button 
+                variant="primary"
+                className="btn-join"
                 onClick={handleJoin}
-                onMouseEnter={handleButtonHover}
-                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Join Room
-              </button>
-              <button 
-                className="btn btn-practice" 
+              </Button>
+              <Button 
+                variant="primary"
+                className="btn-practice"
                 onClick={handlePractice}
-                onMouseEnter={handleButtonHover}
-                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Practice
-              </button>
+              </Button>
             </div>
           </div>
         </div>
