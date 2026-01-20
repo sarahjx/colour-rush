@@ -24,6 +24,8 @@ function Button({
 
     if (onClick && typeof onClick === 'function') {
       onClick(e);
+    } else {
+      console.warn('Button onClick is not a function:', onClick);
     }
   };
 
