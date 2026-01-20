@@ -30,6 +30,14 @@ function useGameState() {
     setScores({});
   };
 
+  const leaveRoom = () => {
+    setRoomCode('');
+    setPlayers([]);
+    setGameStatus('idle');
+    setScores({});
+    // TODO: Remove player from room via Firebase
+  };
+
   return {
     // State
     username,
@@ -41,5 +49,6 @@ function useGameState() {
     setUsername: handleSetUsername,
     createRoom,
     joinRoom,
+    leaveRoom,
   };
 }
