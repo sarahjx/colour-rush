@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Room.css';
 
-function Room({ roomCode, players = [] }) {
+function Room({ roomCode, players = [], onStartGame }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -40,6 +40,10 @@ function Room({ roomCode, players = [] }) {
               )}
             </div>
           </div>
+
+          <button className="btn btn-start" onClick={onStartGame}>
+            Start Game
+          </button>
         </div>
       </div>
     </div>
