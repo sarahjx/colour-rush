@@ -45,36 +45,42 @@ function Landing({ gameState }) {
   };
 
   const handleCreate = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
     if (!username.trim()) {
       return;
     }
-
     setIsCreateRoomModalOpen(true);
   };
 
   const handleCreateRoom = async () => {
-    return await createRoom();
+    try {
+      const code = await createRoom();
+      return code;
+    } catch (error) {
+      console.error('Error creating room:', error);
+      throw error;
+    }
   };
 
   const handleCloseModal = () => {
     setIsCreateRoomModalOpen(false);
   };
 
-  const handleJoin = () => {
+  const handleJoin = (e) => {
+    if (!username.trim()) {
+      return;
+    }
     // TODO: Get room code from user input
     const roomCode = prompt('Enter room code:');
-    if (roomCode) {
-      joinRoom(roomCode);
+    if (roomCode && roomCode.trim()) {
+      joinRoom(roomCode.trim());
       console.log('Joined room:', roomCode);
     }
   };
 
-  const handlePractice = () => {
+  const handlePractice = (e) => {
+    if (!username.trim()) {
+      return;
+    }
     // TODO: Implement practice mode functionality
     console.log('Practice mode with username:', username);
   };
