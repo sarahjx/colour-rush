@@ -8,6 +8,11 @@ function useGameState() {
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, playing, finished
   const [scores, setScores] = useState({});
 
+  // Functions
+  const handleSetUsername = (name) => {
+    setUsername(name);
+  };
+
   return {
     // State
     username,
@@ -15,5 +20,7 @@ function useGameState() {
     players,
     gameStatus,
     scores,
+    // Functions
+    setUsername: handleSetUsername,
   };
 }
