@@ -42,9 +42,23 @@ function Landing({ gameState }) {
     setUsername(e.target.value);
   };
 
-  const handleCreate = async () => {
-    const roomCode = await createRoom();
-    console.log('Room created with code:', roomCode);
+  const handleCreate = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (!username.trim()) {
+      return;
+    }
+
+    try {
+      const roomCode = await createRoom();
+      console.log('Room created with code:', roomCode);
+      // Navigation handled by App.js when gameStatus changes to 'waiting'
+    } catch (error) {
+      console.error('Error creating room:', error);
+    }
   };
 
   const handleJoin = () => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { gsap } from 'gsap';
 import './Button.css';
 
@@ -12,6 +12,20 @@ function Button({
   ...props 
 }) {
   const buttonRef = useRef(null);
+
+  // JavaScript event handlers
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (disabled) {
+      return;
+    }
+
+    if (onClick && typeof onClick === 'function') {
+      onClick(e);
+    }
+  };
 
   const handleMouseEnter = () => {
     if (!disabled && buttonRef.current) {
@@ -30,12 +44,6 @@ function Button({
         duration: 0.2,
         ease: 'power2.out'
       });
-    }
-  };
-
-  const handleClick = (e) => {
-    if (!disabled && onClick) {
-      onClick(e);
     }
   };
 
