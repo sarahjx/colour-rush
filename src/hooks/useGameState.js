@@ -13,6 +13,16 @@ function useGameState() {
     setUsername(name);
   };
 
+  const createRoom = () => {
+    // Generate a random room code (6 characters)
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    setRoomCode(code);
+    setPlayers([{ username, id: Date.now() }]);
+    setGameStatus('waiting');
+    setScores({});
+    return code;
+  };
+
   return {
     // State
     username,
@@ -22,5 +32,6 @@ function useGameState() {
     scores,
     // Functions
     setUsername: handleSetUsername,
+    createRoom,
   };
 }
