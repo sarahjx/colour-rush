@@ -1,10 +1,9 @@
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import useGameState from '../hooks/useGameState';
 import './Landing.css';
 
-function Landing() {
-  const { username, setUsername, createRoom, joinRoom } = useGameState();
+function Landing({ gameState }) {
+  const { username, setUsername, createRoom, joinRoom } = gameState;
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
   const inputRef = useRef(null);
