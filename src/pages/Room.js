@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from '../components/Button';
 import './Room.css';
 
 function Room({ roomCode, players = [], onStartGame, onLeaveRoom, onBackToMenu }) {
@@ -22,9 +23,13 @@ function Room({ roomCode, players = [], onStartGame, onLeaveRoom, onBackToMenu }
           <div className="room-code-display">
             {roomCode}
           </div>
-          <button className="btn btn-copy" onClick={handleCopy}>
+          <Button 
+            variant="primary"
+            className="btn-copy"
+            onClick={handleCopy}
+          >
             {copied ? 'Copied!' : 'Copy to Clipboard'}
-          </button>
+          </Button>
 
           <div className="player-list-section">
             <h3 className="player-list-title">Players</h3>
@@ -41,17 +46,29 @@ function Room({ roomCode, players = [], onStartGame, onLeaveRoom, onBackToMenu }
             </div>
           </div>
 
-          <button className="btn btn-start" onClick={onStartGame}>
+          <Button 
+            variant="primary"
+            className="btn-start"
+            onClick={onStartGame}
+          >
             Start Game
-          </button>
+          </Button>
 
-          <button className="btn btn-leave" onClick={onLeaveRoom}>
+          <Button 
+            variant="secondary"
+            className="btn-leave"
+            onClick={onLeaveRoom}
+          >
             Leave Room
-          </button>
+          </Button>
 
-          <button className="btn btn-back" onClick={onBackToMenu}>
+          <Button 
+            variant="secondary"
+            className="btn-back"
+            onClick={onBackToMenu}
+          >
             Back to Menu
-          </button>
+          </Button>
         </div>
       </div>
     </div>
