@@ -6,6 +6,7 @@ function Landing() {
   const [username, setUsername] = useState('');
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -73,6 +74,28 @@ function Landing() {
     });
   };
 
+  const handleInputFocus = () => {
+    if (inputRef.current) {
+      gsap.to(inputRef.current, {
+        scale: 1.02,
+        duration: 0.3,
+        ease: 'power2.out',
+        yoyo: true,
+        repeat: 1
+      });
+    }
+  };
+
+  const handleInputBlur = () => {
+    if (inputRef.current) {
+      gsap.to(inputRef.current, {
+        scale: 1,
+        duration: 0.2,
+        ease: 'power2.out'
+      });
+    }
+  };
+
   return (
     <div className="landing">
       <div className="landing-container">
@@ -85,12 +108,15 @@ function Landing() {
                 Username
               </label>
               <input
+                ref={inputRef}
                 id="username"
                 type="text"
                 className="input-field"
                 placeholder="Enter your username"
                 value={username}
                 onChange={handleUsernameChange}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
               />
             </div>
 
