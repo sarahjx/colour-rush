@@ -1,6 +1,7 @@
 import useGameState from './hooks/useGameState';
 import Landing from './pages/Landing';
 import Room from './pages/Room';
+import Button from './components/Button';
 import './App.css';
 
 function App() {
