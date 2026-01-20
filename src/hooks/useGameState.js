@@ -52,3 +52,5 @@ function useGameState() {
     leaveRoom,
   };
 }
+
+export default useGameState;
