@@ -23,6 +23,13 @@ function useGameState() {
     return code;
   };
 
+  const joinRoom = (code) => {
+    setRoomCode(code.toUpperCase());
+    // TODO: Add player to room via Firebase
+    setGameStatus('waiting');
+    setScores({});
+  };
+
   return {
     // State
     username,
@@ -33,5 +40,6 @@ function useGameState() {
     // Functions
     setUsername: handleSetUsername,
     createRoom,
+    joinRoom,
   };
 }
