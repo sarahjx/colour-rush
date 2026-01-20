@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { gsap } from 'gsap';
 import './Landing.css';
 
 function Landing() {
