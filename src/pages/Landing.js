@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
+import useGameState from '../hooks/useGameState';
 import './Landing.css';
 
 function Landing() {
-  const [username, setUsername] = useState('');
+  const { username, setUsername, createRoom, joinRoom } = useGameState();
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
   const inputRef = useRef(null);
@@ -42,13 +43,17 @@ function Landing() {
   };
 
   const handleCreate = () => {
-    // TODO: Implement create game functionality
-    console.log('Create game with username:', username);
+    const roomCode = createRoom();
+    console.log('Room created with code:', roomCode);
   };
 
   const handleJoin = () => {
-    // TODO: Implement join game functionality
-    console.log('Join game with username:', username);
+    // TODO: Get room code from user input
+    const roomCode = prompt('Enter room code:');
+    if (roomCode) {
+      joinRoom(roomCode);
+      console.log('Joined room:', roomCode);
+    }
   };
 
   const handlePractice = () => {
@@ -128,7 +133,7 @@ function Landing() {
                 onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
-                Create
+                Create Room
               </button>
               <button 
                 className="btn btn-join" 
@@ -137,7 +142,7 @@ function Landing() {
                 onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
-                Join
+                Join Room
               </button>
               <button 
                 className="btn btn-practice" 
