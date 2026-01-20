@@ -88,3 +88,15 @@
 .btn-leave:hover {
   background: var(--color-gray);
 }
+
+.btn-back {
+  width: 100%;
+  background: transparent;
+  border: 2px solid var(--color-gray);
+  color: var(--color-text);
+}
+
+.btn-back:hover {
+  background: var(--color-gray-light);
+  border-color: var(--color-gray-dark);
+}
