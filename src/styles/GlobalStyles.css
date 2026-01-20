@@ -1,0 +1,29 @@
+/* CSS Variables for Colors */
+:root {
+  /* Primary Colors */
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
+  --color-primary-dark: #4f46e5;
+  
+  /* Secondary Colors */
+  --color-secondary: #ec4899;
+  --color-secondary-light: #f472b6;
+  --color-secondary-dark: #db2777;
+  
+  /* Accent Colors */
+  --color-accent: #10b981;
+  --color-accent-light: #34d399;
+  --color-accent-dark: #059669;
+  
+  /* Neutral Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray-light: #f3f4f6;
+  --color-gray: #9ca3af;
+  --color-gray-dark: #4b5563;
+  
+  /* Text Colors */
+  --color-text: #000000;
+  --color-text-light: #6b7280;
+  --color-text-inverse: #ffffff;
+}
