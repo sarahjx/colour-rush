@@ -1,0 +1,115 @@
+.create-room-modal-content {
+  text-align: center;
+}
+
+.creating-room-message {
+  margin-bottom: 2rem;
+}
+
+.creating-room-message p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.creating-room-message strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.sub-message {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  margin-top: 0.75rem !important;
+}
+
+.room-created-content {
+  margin-bottom: 2rem;
+}
+
+.success-message {
+  font-size: 1.125rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.room-code-section {
+  margin: 2rem 0;
+}
+
+.room-code-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.room-code-display-modal {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 2px dashed var(--color-gray-light);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-light);
+  background-clip: padding-box;
+  -webkit-text-fill-color: initial;
+  color: transparent;
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+}
+
+.copy-code-btn {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.share-message {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  margin-top: 1.5rem;
+  font-style: italic;
+}
+
+.modal-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.create-room-confirm-btn,
+.continue-btn {
+  width: 100%;
+}
+
+.cancel-btn {
+  width: 100%;
+  background: var(--color-gray-light);
+  color: var(--color-text);
+}
+
+.cancel-btn:hover {
+  background: var(--color-gray);
+}
+
+@media (min-width: 640px) {
+  .modal-button-group {
+    flex-direction: row;
+  }
+
+  .create-room-confirm-btn,
+  .continue-btn,
+  .cancel-btn {
+    flex: 1;
+  }
+}

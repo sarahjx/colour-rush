@@ -1,10 +1,12 @@
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
+import CreateRoomModal from '../components/CreateRoomModal';
 import './Landing.css';
 
 function Landing({ gameState }) {
   const { username, setUsername, createRoom, joinRoom } = gameState;
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
   const inputRef = useRef(null);
@@ -42,7 +44,7 @@ function Landing({ gameState }) {
     setUsername(e.target.value);
   };
 
-  const handleCreate = async (e) => {
+  const handleCreate = (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -52,13 +54,15 @@ function Landing({ gameState }) {
       return;
     }
 
-    try {
-      const roomCode = await createRoom();
-      console.log('Room created with code:', roomCode);
-      // Navigation handled by App.js when gameStatus changes to 'waiting'
-    } catch (error) {
-      console.error('Error creating room:', error);
-    }
+    setIsCreateRoomModalOpen(true);
+  };
+
+  const handleCreateRoom = async () => {
+    return await createRoom();
+  };
+
+  const handleCloseModal = () => {
+    setIsCreateRoomModalOpen(false);
   };
 
   const handleJoin = () => {
@@ -150,6 +154,13 @@ function Landing({ gameState }) {
           </div>
         </div>
       </div>
+
+      <CreateRoomModal
+        isOpen={isCreateRoomModalOpen}
+        onClose={handleCloseModal}
+        onCreateRoom={handleCreateRoom}
+        username={username}
+      />
     </div>
   );
 }
