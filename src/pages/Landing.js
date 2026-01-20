@@ -1,9 +1,20 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import './Landing.css';
 
 function Landing() {
   const [username, setUsername] = useState('');
+  const titleRef = useRef(null);
+
+  useEffect(() => {
+    if (titleRef.current) {
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+      );
+    }
+  }, []);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -28,7 +39,7 @@ function Landing() {
     <div className="landing">
       <div className="landing-container">
         <div className="landing-content">
-          <h1 className="landing-title">Color Rush</h1>
+          <h1 ref={titleRef} className="landing-title">Color Rush</h1>
           
           <div className="landing-form">
             <div className="input-group">
