@@ -55,6 +55,24 @@ function Landing() {
     console.log('Practice mode with username:', username);
   };
 
+  const handleButtonHover = (e) => {
+    if (!e.currentTarget.disabled) {
+      gsap.to(e.currentTarget, {
+        scale: 1.05,
+        duration: 0.2,
+        ease: 'power2.out'
+      });
+    }
+  };
+
+  const handleButtonLeave = (e) => {
+    gsap.to(e.currentTarget, {
+      scale: 1,
+      duration: 0.2,
+      ease: 'power2.out'
+    });
+  };
+
   return (
     <div className="landing">
       <div className="landing-container">
@@ -80,6 +98,8 @@ function Landing() {
               <button 
                 className="btn btn-create" 
                 onClick={handleCreate}
+                onMouseEnter={handleButtonHover}
+                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Create
@@ -87,6 +107,8 @@ function Landing() {
               <button 
                 className="btn btn-join" 
                 onClick={handleJoin}
+                onMouseEnter={handleButtonHover}
+                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Join
@@ -94,6 +116,8 @@ function Landing() {
               <button 
                 className="btn btn-practice" 
                 onClick={handlePractice}
+                onMouseEnter={handleButtonHover}
+                onMouseLeave={handleButtonLeave}
                 disabled={!username.trim()}
               >
                 Practice
