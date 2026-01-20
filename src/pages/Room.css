@@ -79,3 +79,12 @@
   width: 100%;
   margin-bottom: 1rem;
 }
+
+.btn-leave {
+  width: 100%;
+  background: var(--color-gray-dark);
+}
+
+.btn-leave:hover {
+  background: var(--color-gray);
+}
