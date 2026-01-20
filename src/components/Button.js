@@ -58,6 +58,12 @@ function Button({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       disabled={disabled}
+      style={{ 
+        pointerEvents: disabled ? 'none' : 'auto',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        position: 'relative',
+        zIndex: 1000
+      }}
       {...props}
     >
       {children}
