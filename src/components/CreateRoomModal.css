@@ -164,6 +164,7 @@
 .room-code-display-modal {
   font-size: 3rem;
   font-weight: 700;
+  font-family: 'Outfit', sans-serif;
   letter-spacing: 0.5rem;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
   -webkit-background-clip: text;
