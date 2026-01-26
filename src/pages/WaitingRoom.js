@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import Button from '../components/Button';
+import Modal from '../components/Modal';
 import './WaitingRoom.css';
 
-function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLeaveRoom }) {
+function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLeaveRoom, onBackToHome }) {
   const [copied, setCopied] = useState(false);
+  const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -17,6 +19,14 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
 
   return (
     <div className="waiting-room">
+      <Button
+        variant="secondary"
+        className="info-button"
+        onClick={() => setIsHowToPlayOpen(true)}
+      >
+        ℹ️ How to Play
+      </Button>
+
       <div className="room-code-corner">
         <span className="room-code-label-small">Room</span>
         <span className="room-code-small">{roomCode}</span>
@@ -61,20 +71,61 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
 
         <div className="waiting-room-actions">
           {isHost ? (
-            <Button
-              variant="primary"
-              className="start-game-btn-large"
-              onClick={onStartGame}
-            >
-              Start Game
-            </Button>
+            <>
+              <Button
+                variant="primary"
+                className="start-game-btn-large"
+                onClick={onStartGame}
+              >
+                Start Game
+              </Button>
+              <Button
+                variant="secondary"
+                className="back-to-home-btn"
+                onClick={onBackToHome}
+              >
+                Back to Home
+              </Button>
+            </>
           ) : (
-            <div className="waiting-message">
-              <p className="waiting-text">Waiting for Host</p>
-            </div>
+            <>
+              <div className="waiting-message">
+                <p className="waiting-text">Waiting for Host</p>
+              </div>
+              <Button
+                variant="secondary"
+                className="back-to-home-btn"
+                onClick={onBackToHome}
+              >
+                Back to Home
+              </Button>
+            </>
           )}
         </div>
       </div>
+
+      <Modal
+        isOpen={isHowToPlayOpen}
+        onClose={() => setIsHowToPlayOpen(false)}
+        title="How to Play"
+      >
+        <div className="how-to-play-content">
+          <h3>Game Rules</h3>
+          <ol>
+            <li>Enter your nickname and choose your colour</li>
+            <li>Create a room or join an existing one with a room code</li>
+            <li>Wait for all players to join the waiting room</li>
+            <li>The host starts the game when ready</li>
+            <li>Match the colours as fast as you can!</li>
+          </ol>
+          <h3>Tips</h3>
+          <ul>
+            <li>Share your room code with friends to play together</li>
+            <li>Adjust game speed and number of rounds before starting</li>
+            <li>Have fun and enjoy the colourful challenge!</li>
+          </ul>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -34,6 +34,7 @@ function App() {
           isHost={isHost}
           onStartGame={handleStartGame}
           onLeaveRoom={handleLeaveRoom}
+          onBackToHome={handleBackToMenu}
         />
       ) : gameStatus === 'playing' ? (
         <Room
