@@ -140,11 +140,13 @@ function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onS
             <li><strong>"Click the COLOR!"</strong> → Click what color the text is (BLUE)</li>
           </ul>
 
-          <h3>Game Speed</h3>
-          <p>
-            Game speed controls how quickly the color words appear and change. 
-            A higher speed means faster gameplay and less time to react, making it more challenging!
-          </p>
+          <h3>Difficulty Levels</h3>
+          <p>The game offers three difficulty levels:</p>
+          <ul>
+            <li><strong>Easy:</strong> Buttons don't change positions, slower pace that gradually increases each round. Perfect for beginners!</li>
+            <li><strong>Normal:</strong> Button colors change positions every 10 seconds, faster pace than Easy, and gets faster each round. A balanced challenge!</li>
+            <li><strong>Difficult:</strong> Button colors change positions every 5 seconds, fastest pace, and gets faster each round. For the most skilled players!</li>
+          </ul>
         </div>
       </Modal>
 
@@ -159,7 +161,7 @@ function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onS
             setIsSettingsOpen(false);
           }}
           nickname={players.find(p => p.isHost)?.nickname || ''}
-          initialSpeed={gameSettings?.speed || 5}
+          initialDifficulty={gameSettings?.difficulty || 'normal'}
           initialRounds={gameSettings?.rounds || 3}
           title="Game Settings"
           buttonText="Save Settings"

@@ -4,22 +4,22 @@ import Modal from './Modal';
 import Button from './Button';
 import './CreateRoomModal.css';
 
-function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialSpeed, initialRounds, title = "Create Room", buttonText = "Start" }) {
-  const [speed, setSpeed] = useState(initialSpeed || 5);
+function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialDifficulty, initialRounds, title = "Create Room", buttonText = "Start" }) {
+  const [difficulty, setDifficulty] = useState(initialDifficulty || 'normal');
   const [rounds, setRounds] = useState(initialRounds || 3);
   const [isCreating, setIsCreating] = useState(false);
   const codeDisplayRef = useRef(null);
 
   // Update state when initial values change
   useEffect(() => {
-    if (initialSpeed !== undefined) setSpeed(initialSpeed);
+    if (initialDifficulty !== undefined) setDifficulty(initialDifficulty);
     if (initialRounds !== undefined) setRounds(initialRounds);
-  }, [initialSpeed, initialRounds]);
+  }, [initialDifficulty, initialRounds]);
 
   const handleStart = async () => {
     setIsCreating(true);
     try {
-      const settings = { speed: parseInt(speed), rounds: parseInt(rounds) };
+      const settings = { difficulty, rounds: parseInt(rounds) };
       await onCreateRoom(settings);
       // Modal will close and navigation happens via App.js
       handleClose();
@@ -30,7 +30,7 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialSpeed
   };
 
   const handleClose = () => {
-    setSpeed(initialSpeed || 5);
+    setDifficulty(initialDifficulty || 'normal');
     setRounds(initialRounds || 3);
     setIsCreating(false);
     onClose();
@@ -43,21 +43,31 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialSpeed
           <p className="settings-intro">Configure your game settings</p>
           
           <div className="setting-group">
-            <label htmlFor="speed" className="setting-label">
-              Game Speed: <span className="setting-value">{speed}</span>
+            <label htmlFor="difficulty" className="setting-label">
+              Difficulty Level
             </label>
-            <input
-              id="speed"
-              type="range"
-              min="1"
-              max="10"
-              value={speed}
-              onChange={(e) => setSpeed(e.target.value)}
-              className="setting-slider"
-            />
-            <div className="setting-range">
-              <span>Slow</span>
-              <span>Fast</span>
+            <div className="difficulty-buttons">
+              <button
+                type="button"
+                className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
+                onClick={() => setDifficulty('easy')}
+              >
+                Easy
+              </button>
+              <button
+                type="button"
+                className={`difficulty-btn ${difficulty === 'normal' ? 'active' : ''}`}
+                onClick={() => setDifficulty('normal')}
+              >
+                Normal
+              </button>
+              <button
+                type="button"
+                className={`difficulty-btn ${difficulty === 'difficult' ? 'active' : ''}`}
+                onClick={() => setDifficulty('difficult')}
+              >
+                Difficult
+              </button>
             </div>
           </div>
 
@@ -80,7 +90,7 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialSpeed
         <div className="modal-button-group">
           <Button
             onClick={handleStart}
-            disabled={isCreating || speed < 1 || speed > 10 || rounds < 1 || rounds > 10}
+            disabled={isCreating || !difficulty || rounds < 1 || rounds > 10}
             variant="primary"
             className="start-room-btn"
           >

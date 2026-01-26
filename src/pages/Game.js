@@ -32,7 +32,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const flashRef = useRef(null);
   const buttonShuffleIntervalRef = useRef(null);
 
-  const speed = gameSettings?.speed || 5;
+  const difficulty = gameSettings?.difficulty || 'normal';
   const totalRounds = gameSettings?.rounds || 3;
   const baseTime = 5000;
   const minTime = 1000;
@@ -41,25 +41,58 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const roundTimeMultiplier = Math.max(0.7, 1.2 - ((currentRound - 1) * 0.1)); // Each round has less time
   const totalRoundTime = baseRoundTime * roundTimeMultiplier;
   
-  // Determine if we should shuffle buttons (after round 1)
-  const shouldShuffleButtons = currentRound > 1;
-  // Shuffle interval increases with round number (higher round = slower shuffling)
-  const shuffleInterval = useMemo(() => 2000 + (currentRound * 500), [currentRound]); // Round 2: 3s, Round 3: 3.5s, Round 4: 4s, etc.
+  // Difficulty-based settings
+  const difficultySettings = useMemo(() => {
+    switch (difficulty) {
+      case 'easy':
+        return {
+          buttonChangeInterval: null, // No button color changes
+          baseSpeedMultiplier: 0.8, // Slower base speed
+          roundSpeedIncrease: 0.05, // Slow ramp up per round
+        };
+      case 'normal':
+        return {
+          buttonChangeInterval: 10000, // Change every 10 seconds
+          baseSpeedMultiplier: 0.6, // Faster than easy
+          roundSpeedIncrease: 0.1, // Faster ramp up per round
+        };
+      case 'difficult':
+        return {
+          buttonChangeInterval: 5000, // Change every 5 seconds
+          baseSpeedMultiplier: 0.4, // Fastest
+          roundSpeedIncrease: 0.15, // Fastest ramp up per round
+        };
+      default:
+        return {
+          buttonChangeInterval: 10000,
+          baseSpeedMultiplier: 0.6,
+          roundSpeedIncrease: 0.1,
+        };
+    }
+  }, [difficulty]);
   
-  // Speed setting multiplier: speed 1 = slowest (1.0x), speed 10 = fastest (0.3x)
-  // Maps speed 1-10 to multiplier range 1.0 to 0.3
-  const speedMultiplier = useMemo(() => {
-    // Speed 1 = 1.0, Speed 10 = 0.3, linear interpolation
-    return 1.0 - ((speed - 1) / 9) * 0.7;
-  }, [speed]);
+  // Determine if we should change button colors based on difficulty
+  const shouldChangeButtonColors = difficultySettings.buttonChangeInterval !== null;
+  // Button color change interval (adjusted for round - gets faster each round)
+  const buttonChangeInterval = useMemo(() => {
+    if (!shouldChangeButtonColors) return null;
+    const baseInterval = difficultySettings.buttonChangeInterval;
+    // Each round, reduce interval by 10% (make it faster)
+    const roundReduction = (currentRound - 1) * 0.1;
+    return Math.max(baseInterval * 0.5, baseInterval * (1 - roundReduction));
+  }, [shouldChangeButtonColors, difficultySettings.buttonChangeInterval, currentRound]);
   
-  // Progressive speed: start much slower, get faster as more words are answered
-  // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
-  const roundSpeedMultiplier = Math.max(0.6, 1.2 - ((currentRound - 1) * 0.15)); // Each round is faster
+  // Progressive speed: gets faster each round based on difficulty
+  const roundSpeedMultiplier = useMemo(() => {
+    const base = difficultySettings.baseSpeedMultiplier;
+    const increase = difficultySettings.roundSpeedIncrease * (currentRound - 1);
+    return Math.max(0.3, base - increase); // Lower = faster
+  }, [difficultySettings, currentRound]);
+  
   const wordSpeedMultiplier = Math.max(0.3, 1.5 - (wordsAnswered * 0.04)); // Within round, gets faster
   const progressiveMultiplier = roundSpeedMultiplier * wordSpeedMultiplier;
-  // Apply both speed setting and progressive multipliers
-  const timePerWord = Math.max(minTime, baseTime * speedMultiplier * progressiveMultiplier);
+  // Apply difficulty and progressive multipliers
+  const timePerWord = Math.max(minTime, baseTime * progressiveMultiplier);
 
   useEffect(() => {
     // Auto-start game when component mounts (after countdown)

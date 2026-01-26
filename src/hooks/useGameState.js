@@ -28,7 +28,7 @@ function useGameState() {
   const [scores, setScores] = useState({});
   const [playerScores, setPlayerScores] = useState({}); // Final player scores from game
   const [gameSettings, setGameSettings] = useState({
-    speed: 5, // Default speed (1-10)
+    difficulty: 'normal', // easy, normal, difficult
     rounds: 3 // Default number of rounds
   });
 
