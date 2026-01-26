@@ -21,6 +21,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const [currentColor, setCurrentColor] = useState('');
   const [currentInstruction, setCurrentInstruction] = useState('WORD');
   const [timeLeft, setTimeLeft] = useState(null);
+  const [roundTimeLeft, setRoundTimeLeft] = useState(null); // Total time for the round
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
   const [playerScores, setPlayerScores] = useState({}); // Track scores per player
@@ -31,8 +32,13 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
 
   const speed = gameSettings?.speed || 5;
   const totalRounds = gameSettings?.rounds || 3;
-  const baseTime = 5000; // Increased from 3000
+  const baseTime = 5000;
   const minTime = 1000;
+  // Round timer: total time allowed for the round (gets shorter each round)
+  const baseRoundTime = 60000; // 60 seconds base
+  const roundTimeMultiplier = Math.max(0.7, 1.2 - ((currentRound - 1) * 0.1)); // Each round has less time
+  const totalRoundTime = baseRoundTime * roundTimeMultiplier;
+  
   // Progressive speed: start much slower, get faster as more words are answered
   // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
   const roundSpeedMultiplier = Math.max(0.6, 1.2 - ((currentRound - 1) * 0.15)); // Each round is faster
@@ -53,6 +59,23 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     }
   }, [isGameActive, showRoundEnd]);
 
+  // Round timer countdown
+  useEffect(() => {
+    if (isGameActive && roundTimeLeft !== null && roundTimeLeft > 0) {
+      const timer = setInterval(() => {
+        setRoundTimeLeft(prev => {
+          if (prev <= 100) {
+            // Round time is up
+            endRound();
+            return 0;
+          }
+          return prev - 100;
+        });
+      }, 100);
+      return () => clearInterval(timer);
+    }
+  }, [isGameActive, roundTimeLeft]);
+
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
       // All rounds complete
@@ -60,19 +83,32 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     }
   }, [showRoundEnd, currentRound, totalRounds]);
 
+  // Word timer countdown
   useEffect(() => {
-    if (isGameActive && timeLeft !== null && timeLeft > 0) {
-      const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 100);
+    if (isGameActive && !showRoundEnd && timeLeft !== null && timeLeft > 0 && roundTimeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 100) {
+            // Word time is up
+            handleTimeUp();
+            return 0;
+          }
+          return prev - 100;
+        });
       }, 100);
-      return () => clearTimeout(timer);
-    } else if (isGameActive && timeLeft === 0) {
+      return () => clearInterval(timer);
+    } else if (isGameActive && timeLeft === 0 && roundTimeLeft > 0) {
       // Time's up, move to next word
       handleTimeUp();
     }
-  }, [isGameActive, timeLeft]);
+  }, [isGameActive, timeLeft, showRoundEnd, roundTimeLeft]);
 
   const startNewWord = () => {
+    // Don't start new word if round time is up
+    if (roundTimeLeft <= 0) {
+      return;
+    }
+
     // Pick random word and color (different from word)
     const word = COLORS[Math.floor(Math.random() * COLORS.length)];
     let color = COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -116,11 +152,8 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     
     // Move to next word after flash (score stays the same - wrong answer)
     setTimeout(() => {
-      setWordsAnswered(prev => prev + 1);
-      // After 10 words, end the round
-      if (wordsAnswered >= 9) {
-        endRound();
-      } else {
+      if (roundTimeLeft > 0) {
+        setWordsAnswered(prev => prev + 1);
         startNewWord();
       }
     }, 400);
@@ -156,7 +189,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   };
 
   const handleColorClick = (clickedColor) => {
-    if (!isGameActive || timeLeft === null || showRoundEnd) return;
+    if (!isGameActive || timeLeft === null || showRoundEnd || roundTimeLeft <= 0) return;
 
     let isCorrect = false;
     if (currentInstruction === 'WORD') {
@@ -176,11 +209,8 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
 
     setWordsAnswered(prev => prev + 1);
     
-    // After 10 words, end the round
-    if (wordsAnswered >= 9) {
-      endRound();
-    } else {
-      // Move to next word
+    // Move to next word if round time still available
+    if (roundTimeLeft > 0) {
       startNewWord();
     }
   };
@@ -190,6 +220,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     setShowRoundEnd(false);
     setScore(0);
     setWordsAnswered(0);
+    setCurrentWord('');
+    setCurrentColor('');
+    setTimeLeft(null);
+    setRoundTimeLeft(totalRoundTime); // Start round timer
   };
 
   const startNextRound = () => {
@@ -197,6 +231,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       setCurrentRound(currentRound + 1);
       setScore(0); // Reset round score, but keep totalScore
       setWordsAnswered(0);
+      setCurrentWord('');
+      setCurrentColor('');
+      setTimeLeft(null);
+      setRoundTimeLeft(totalRoundTime); // Start fresh round timer
       setIsGameActive(true);
       setShowRoundEnd(false);
     }
@@ -213,12 +251,25 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
         <div className="game-info">
           <div className="round-info">Round {currentRound} / {totalRounds}</div>
           <div className="score-info">Total: {totalScore} | Round: {score}</div>
+          {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
+            <div className="round-timer">
+              {Math.ceil(roundTimeLeft / 1000)}s
+            </div>
+          )}
         </div>
-        {timeLeft !== null && isGameActive && !showRoundEnd && (
+        {timeLeft !== null && isGameActive && !showRoundEnd && roundTimeLeft > 0 && (
           <div className="timer-bar">
             <div 
               className="timer-fill" 
-              style={{ width: `${(timeLeft / timePerWord) * 100}%` }}
+              style={{ width: `${Math.max(0, (timeLeft / timePerWord) * 100)}%` }}
+            />
+          </div>
+        )}
+        {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
+          <div className="round-timer-bar">
+            <div 
+              className="round-timer-fill" 
+              style={{ width: `${Math.max(0, (roundTimeLeft / totalRoundTime) * 100)}%` }}
             />
           </div>
         )}
