@@ -124,7 +124,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     }
   }, [isGameActive, roundTimeLeft]);
 
-  // Button shuffling after round 1
+  // Button color changing based on difficulty
   useEffect(() => {
     // Clear any existing interval first
     if (buttonShuffleIntervalRef.current) {
@@ -132,22 +132,22 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       buttonShuffleIntervalRef.current = null;
     }
 
-    if (isGameActive && shouldShuffleButtons && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
-      console.log(`Starting button rotation for round ${currentRound} with interval ${shuffleInterval}ms`);
-      // Rotate buttons (shift positions) at intervals that increase with round number
+    if (isGameActive && shouldChangeButtonColors && buttonChangeInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
+      // Change button colors (rotate positions) at difficulty-based intervals
       buttonShuffleIntervalRef.current = setInterval(() => {
         setButtonOrder(prev => {
           // Rotate: move first to last (left to right becomes middle, right, left)
           const rotated = [...prev];
           const first = rotated.shift();
           rotated.push(first);
-          console.log('Button order rotated:', rotated);
           return rotated;
         });
-      }, shuffleInterval);
-    } else if (!shouldShuffleButtons && currentRound <= 1) {
-      // Reset to original order when not shuffling (round 1 or less)
-      setButtonOrder([...COLORS]);
+      }, buttonChangeInterval);
+    } else if (!shouldChangeButtonColors || !buttonChangeInterval) {
+      // Reset to original order when not changing colors (easy mode or when game is not active)
+      if (!isGameActive || showRoundEnd) {
+        setButtonOrder([...COLORS]);
+      }
     }
 
     return () => {
@@ -156,7 +156,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         buttonShuffleIntervalRef.current = null;
       }
     };
-  }, [isGameActive, shouldShuffleButtons, roundTimeLeft, shuffleInterval, currentRound, showRoundEnd]);
+  }, [isGameActive, shouldChangeButtonColors, buttonChangeInterval, roundTimeLeft, showRoundEnd]);
 
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
