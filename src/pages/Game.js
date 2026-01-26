@@ -91,7 +91,8 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       buttonShuffleIntervalRef.current = null;
     }
 
-    if (isGameActive && shouldShuffleButtons && roundTimeLeft !== null && roundTimeLeft > 0) {
+    if (isGameActive && shouldShuffleButtons && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
+      console.log(`Starting button rotation for round ${currentRound} with interval ${shuffleInterval}ms`);
       // Rotate buttons (shift positions) at intervals that increase with round number
       buttonShuffleIntervalRef.current = setInterval(() => {
         setButtonOrder(prev => {
@@ -99,11 +100,12 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
           const rotated = [...prev];
           const first = rotated.shift();
           rotated.push(first);
+          console.log('Button order rotated:', rotated);
           return rotated;
         });
       }, shuffleInterval);
-    } else if (!shouldShuffleButtons) {
-      // Reset to original order when not shuffling
+    } else if (!shouldShuffleButtons && currentRound <= 1) {
+      // Reset to original order when not shuffling (round 1 or less)
       setButtonOrder([...COLORS]);
     }
 
@@ -113,7 +115,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         buttonShuffleIntervalRef.current = null;
       }
     };
-  }, [isGameActive, shouldShuffleButtons, roundTimeLeft, shuffleInterval]);
+  }, [isGameActive, shouldShuffleButtons, roundTimeLeft, shuffleInterval, currentRound, showRoundEnd]);
 
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
