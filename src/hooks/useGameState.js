@@ -39,6 +39,8 @@ function useGameState() {
   const joinRoom = (code) => {
     setRoomCode(code.toUpperCase());
     // TODO: Add player to room via Firebase
+    // For now, add current player to players list
+    setPlayers(prev => [...prev, { nickname, nicknameColor, id: Date.now(), isHost: false }]);
     setGameStatus('waiting');
     setScores({});
   };
