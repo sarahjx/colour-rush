@@ -57,7 +57,6 @@ function App() {
           playerScores={playerScores}
           onPlayAgain={() => returnToWaitingRoom()}
           onLeaveRoom={handleLeaveRoom}
-          onBackToHome={handleBackToMenu}
         />
       ) : (
         <Landing gameState={gameState} />

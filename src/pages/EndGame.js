@@ -3,7 +3,7 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import './EndGame.css';
 
-function EndGame({ roomCode, players = [], playerScores = {}, onPlayAgain, onLeaveRoom, onBackToHome }) {
+function EndGame({ roomCode, players = [], playerScores = {}, onPlayAgain, onLeaveRoom }) {
   const [copied, setCopied] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
 
@@ -99,13 +99,6 @@ function EndGame({ roomCode, players = [], playerScores = {}, onPlayAgain, onLea
             onClick={onLeaveRoom}
           >
             Leave Room
-          </Button>
-          <Button
-            variant="secondary"
-            className="back-to-home-btn"
-            onClick={onBackToHome}
-          >
-            Back to Home
           </Button>
         </div>
       </div>
