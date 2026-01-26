@@ -119,7 +119,7 @@ function Landing({ gameState }) {
     <div className="landing">
       <div className="landing-container">
         <div className="landing-content">
-          <h1 ref={titleRef} className="landing-title">Colour Rush</h1>
+          <h1 ref={titleRef} className="landing-title">Color Rush</h1>
           
           <div className="landing-form">
             <div className="input-group">
