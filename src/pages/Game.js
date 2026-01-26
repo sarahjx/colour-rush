@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
 import './Game.css';
@@ -44,7 +44,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   // Determine if we should shuffle buttons (after round 1)
   const shouldShuffleButtons = currentRound > 1;
   // Shuffle interval increases with round number (higher round = slower shuffling)
-  const shuffleInterval = 2000 + (currentRound * 500); // Round 2: 3s, Round 3: 3.5s, Round 4: 4s, etc.
+  const shuffleInterval = useMemo(() => 2000 + (currentRound * 500), [currentRound]); // Round 2: 3s, Round 3: 3.5s, Round 4: 4s, etc.
   
   // Progressive speed: start much slower, get faster as more words are answered
   // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
@@ -85,7 +85,13 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
 
   // Button shuffling after round 1
   useEffect(() => {
-    if (isGameActive && shouldShuffleButtons && roundTimeLeft > 0) {
+    // Clear any existing interval first
+    if (buttonShuffleIntervalRef.current) {
+      clearInterval(buttonShuffleIntervalRef.current);
+      buttonShuffleIntervalRef.current = null;
+    }
+
+    if (isGameActive && shouldShuffleButtons && roundTimeLeft !== null && roundTimeLeft > 0) {
       // Rotate buttons (shift positions) at intervals that increase with round number
       buttonShuffleIntervalRef.current = setInterval(() => {
         setButtonOrder(prev => {
@@ -96,22 +102,17 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
           return rotated;
         });
       }, shuffleInterval);
-      
-      return () => {
-        if (buttonShuffleIntervalRef.current) {
-          clearInterval(buttonShuffleIntervalRef.current);
-        }
-      };
-    } else {
+    } else if (!shouldShuffleButtons) {
       // Reset to original order when not shuffling
+      setButtonOrder([...COLORS]);
+    }
+
+    return () => {
       if (buttonShuffleIntervalRef.current) {
         clearInterval(buttonShuffleIntervalRef.current);
         buttonShuffleIntervalRef.current = null;
       }
-      if (!shouldShuffleButtons) {
-        setButtonOrder([...COLORS]);
-      }
-    }
+    };
   }, [isGameActive, shouldShuffleButtons, roundTimeLeft, shuffleInterval]);
 
   useEffect(() => {
