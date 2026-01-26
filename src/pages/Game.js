@@ -80,8 +80,16 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     const baseInterval = difficultySettings.buttonChangeInterval;
     // Each round, reduce interval by 10% (make it faster)
     const roundReduction = (currentRound - 1) * 0.1;
-    return Math.max(baseInterval * 0.5, baseInterval * (1 - roundReduction));
-  }, [shouldChangeButtonColors, difficultySettings.buttonChangeInterval, currentRound]);
+    const calculatedInterval = Math.max(baseInterval * 0.5, baseInterval * (1 - roundReduction));
+    console.log('Button change interval calculated:', {
+      difficulty,
+      baseInterval,
+      currentRound,
+      roundReduction,
+      calculatedInterval
+    });
+    return calculatedInterval;
+  }, [shouldChangeButtonColors, difficultySettings.buttonChangeInterval, currentRound, difficulty]);
   
   // Progressive speed: gets faster each round based on difficulty
   const roundSpeedMultiplier = useMemo(() => {
