@@ -271,9 +271,8 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
             </div>
             <div className="color-buttons">
               {COLORS.map((color) => (
-                <Button
+                <button
                   key={color}
-                  variant="primary"
                   className="color-button"
                   onClick={() => handleColorClick(color)}
                   style={{ 
@@ -282,7 +281,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
                   }}
                 >
                   {color}
-                </Button>
+                </button>
               ))}
             </div>
           </>
