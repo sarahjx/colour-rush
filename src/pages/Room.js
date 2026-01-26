@@ -39,7 +39,7 @@ function Room({ roomCode, players = [], onStartGame, onLeaveRoom, onBackToMenu }
               ) : (
                 players.map((player) => (
                   <div key={player.id} className="player-item">
-                    <span style={{ color: player.nicknameColor || '#000' }}>
+                    <span style={{ color: player.nicknameColour || '#000' }}>
                       {player.nickname}
                     </span>
                   </div>

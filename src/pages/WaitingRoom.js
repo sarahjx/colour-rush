@@ -21,12 +21,12 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
               players.map((player) => (
                 <div key={player.id} className="player-card">
                   <div 
-                    className="player-color-indicator"
-                    style={{ backgroundColor: player.nicknameColor || '#6366f1' }}
+                    className="player-colour-indicator"
+                    style={{ backgroundColor: player.nicknameColour || '#ef4444' }}
                   />
                   <span 
                     className="player-nickname"
-                    style={{ color: player.nicknameColor || '#6366f1' }}
+                    style={{ color: player.nicknameColour || '#ef4444' }}
                   >
                     {player.nickname}
                   </span>

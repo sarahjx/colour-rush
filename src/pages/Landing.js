@@ -5,7 +5,7 @@ import CreateRoomModal from '../components/CreateRoomModal';
 import './Landing.css';
 
 function Landing({ gameState }) {
-  const { nickname, setNickname, nicknameColor, setNicknameColor, createRoom, joinRoom } = gameState;
+  const { nickname, setNickname, nicknameColour, setNicknameColour, saveNicknameAndColour, createRoom, joinRoom } = gameState;
   const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
@@ -44,8 +44,12 @@ function Landing({ gameState }) {
     setNickname(e.target.value);
   };
 
-  const handleColorChange = (e) => {
-    setNicknameColor(e.target.value);
+  const handleColourChange = (e) => {
+    setNicknameColour(e.target.value);
+  };
+
+  const handleSave = () => {
+    saveNicknameAndColour();
   };
 
   const handleCreate = (e) => {
@@ -115,7 +119,7 @@ function Landing({ gameState }) {
     <div className="landing">
       <div className="landing-container">
         <div className="landing-content">
-          <h1 ref={titleRef} className="landing-title">Color Rush</h1>
+          <h1 ref={titleRef} className="landing-title">Colour Rush</h1>
           
           <div className="landing-form">
             <div className="input-group">
@@ -135,21 +139,32 @@ function Landing({ gameState }) {
               />
             </div>
             <div className="input-group">
-              <label htmlFor="nickname-color" className="input-label">
-                Nickname Color
+              <label htmlFor="nickname-colour" className="input-label">
+                Nickname Colour
               </label>
-              <div className="color-picker-container">
+              <div className="colour-picker-container">
                 <input
-                  id="nickname-color"
+                  id="nickname-colour"
                   type="color"
-                  className="color-picker"
-                  value={nicknameColor}
-                  onChange={handleColorChange}
+                  className="colour-picker"
+                  value={nicknameColour}
+                  onChange={handleColourChange}
                 />
-                <span className="color-preview" style={{ color: nicknameColor }}>
+                <span className="colour-preview" style={{ color: nicknameColour }}>
                   {nickname || 'Preview'}
                 </span>
               </div>
+            </div>
+
+            <div className="save-button-container">
+              <Button
+                variant="secondary"
+                className="btn-save"
+                onClick={handleSave}
+                disabled={!nickname.trim()}
+              >
+                Save
+              </Button>
             </div>
 
             <div ref={buttonGroupRef} className="button-group">
