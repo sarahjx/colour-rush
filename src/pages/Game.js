@@ -26,7 +26,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const [showRoundEnd, setShowRoundEnd] = useState(false);
   const [playerScores, setPlayerScores] = useState({}); // Track scores per player
   const [flashColor, setFlashColor] = useState(null);
-  const [buttonColors, setButtonColors] = useState({...COLOR_VALUES}); // Track button background colors
+  const [showButtonText, setShowButtonText] = useState(true); // Track whether to show words or just colored squares
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
   const flashRef = useRef(null);
@@ -47,49 +47,42 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     switch (difficulty) {
       case 'easy':
         return {
-          buttonChangeInterval: null, // No button color changes
+          buttonToggleInterval: null, // Always show words
           baseSpeedMultiplier: 0.8, // Slower base speed
           roundSpeedIncrease: 0.05, // Slow ramp up per round
         };
       case 'normal':
         return {
-          buttonChangeInterval: 10000, // Change every 10 seconds
+          buttonToggleInterval: 8000, // Switch every 8 seconds
           baseSpeedMultiplier: 0.6, // Faster than easy
           roundSpeedIncrease: 0.1, // Faster ramp up per round
         };
       case 'difficult':
         return {
-          buttonChangeInterval: 3000, // Change every 3 seconds
+          buttonToggleInterval: 4000, // Switch every 4 seconds
           baseSpeedMultiplier: 0.4, // Fastest
           roundSpeedIncrease: 0.15, // Fastest ramp up per round
         };
       default:
         return {
-          buttonChangeInterval: 10000,
+          buttonToggleInterval: 8000,
           baseSpeedMultiplier: 0.6,
           roundSpeedIncrease: 0.1,
         };
     }
   }, [difficulty]);
   
-  // Determine if we should change button colors based on difficulty
-  const shouldChangeButtonColors = difficultySettings.buttonChangeInterval !== null;
-  // Button color change interval (adjusted for round - gets faster each round)
-  const buttonChangeInterval = useMemo(() => {
-    if (!shouldChangeButtonColors) return null;
-    const baseInterval = difficultySettings.buttonChangeInterval;
+  // Determine if we should toggle button display based on difficulty
+  const shouldToggleButtonDisplay = difficultySettings.buttonToggleInterval !== null;
+  // Button toggle interval (adjusted for round - gets faster each round)
+  const buttonToggleInterval = useMemo(() => {
+    if (!shouldToggleButtonDisplay) return null;
+    const baseInterval = difficultySettings.buttonToggleInterval;
     // Each round, reduce interval by 10% (make it faster)
     const roundReduction = (currentRound - 1) * 0.1;
     const calculatedInterval = Math.max(baseInterval * 0.5, baseInterval * (1 - roundReduction));
-    console.log('Button change interval calculated:', {
-      difficulty,
-      baseInterval,
-      currentRound,
-      roundReduction,
-      calculatedInterval
-    });
     return calculatedInterval;
-  }, [shouldChangeButtonColors, difficultySettings.buttonChangeInterval, currentRound, difficulty]);
+  }, [shouldToggleButtonDisplay, difficultySettings.buttonToggleInterval, currentRound]);
   
   // Progressive speed: gets faster each round based on difficulty
   const roundSpeedMultiplier = useMemo(() => {
@@ -337,7 +330,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     setCurrentColor('');
     setTimeLeft(null);
     setRoundTimeLeft(totalRoundTime); // Start round timer
-    setButtonColors({...COLOR_VALUES}); // Reset button colors to original
+    setShowButtonText(true); // Start with words
   };
 
   const startNextRound = () => {
@@ -353,7 +346,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       const nextRoundTimeMultiplier = Math.max(0.7, 1.2 - ((nextRound - 1) * 0.1));
       const nextRoundTime = baseRoundTime * nextRoundTimeMultiplier;
       setRoundTimeLeft(nextRoundTime); // Start fresh round timer for next round
-      setButtonColors({...COLOR_VALUES}); // Reset button colors to original
+      setShowButtonText(true); // Start with words
       setIsGameActive(true);
       setShowRoundEnd(false);
     }
