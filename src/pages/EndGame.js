@@ -117,7 +117,7 @@ function EndGame({ roomCode, players = [], playerScores = {}, onPlayAgain, onLea
       >
         <div className="how-to-play-content">
           <p className="how-to-play-intro">
-            Color Rush is a fast-paced brain teaser where you race against time and other players!
+            Hue's Right? is a fast-paced brain teaser where you race against time and other players!
           </p>
           
           <h3>The Challenge</h3>

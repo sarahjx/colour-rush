@@ -129,7 +129,7 @@ function Landing({ gameState }) {
 
       <div className="landing-container">
         <div className="landing-content">
-          <h1 ref={titleRef} className="landing-title">Color Rush</h1>
+          <h1 ref={titleRef} className="landing-title">Hue's Right?</h1>
           
           <div className="landing-form">
             <div className="input-group">
@@ -210,7 +210,7 @@ function Landing({ gameState }) {
       >
         <div className="how-to-play-content">
           <p className="how-to-play-intro">
-            Color Rush is a fast-paced brain teaser where you race against time and other players!
+            Hue's Right? is a fast-paced brain teaser where you race against time and other players!
           </p>
           
           <h3>The Challenge</h3>
