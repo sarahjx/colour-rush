@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useState as useStateHook } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
 import './Game.css';
