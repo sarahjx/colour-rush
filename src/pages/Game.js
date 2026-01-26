@@ -33,7 +33,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const baseTime = 5000; // Increased from 3000
   const minTime = 1000;
   // Progressive speed: start much slower, get faster as more words are answered
-  const speedMultiplier = Math.max(0.3, 1.5 - (wordsAnswered * 0.04)); // Start at 1.5x, slower decrease
+  // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
+  const roundSpeedMultiplier = Math.max(0.6, 1.2 - ((currentRound - 1) * 0.15)); // Each round is faster
+  const wordSpeedMultiplier = Math.max(0.3, 1.5 - (wordsAnswered * 0.04)); // Within round, gets faster
+  const speedMultiplier = roundSpeedMultiplier * wordSpeedMultiplier;
   const timePerWord = Math.max(minTime, baseTime * speedMultiplier);
 
   useEffect(() => {
@@ -107,14 +110,19 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   };
 
   const handleTimeUp = () => {
-    // Time's up, move to next word
-    setWordsAnswered(prev => prev + 1);
-    // After 10 words, end the round
-    if (wordsAnswered >= 9) {
-      endRound();
-    } else {
-      startNewWord();
-    }
+    // Time's up - flash red
+    showFlash('red');
+    
+    // Move to next word after flash
+    setTimeout(() => {
+      setWordsAnswered(prev => prev + 1);
+      // After 10 words, end the round
+      if (wordsAnswered >= 9) {
+        endRound();
+      } else {
+        startNewWord();
+      }
+    }, 400);
   };
 
   const endRound = () => {
