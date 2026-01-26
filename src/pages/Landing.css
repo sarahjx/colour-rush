@@ -74,6 +74,38 @@
   color: var(--color-gray);
 }
 
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.color-picker {
+  width: 60px;
+  height: 50px;
+  border: 2px solid var(--color-gray-light);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.25rem;
+}
+
+.color-preview {
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex: 1;
+  text-align: left;
+}
+
 .button-group {
   display: flex;
   flex-direction: column;
