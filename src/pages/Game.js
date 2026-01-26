@@ -290,13 +290,13 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       <div className="game-header">
         <div className="game-info">
           <div className="round-info">Round {currentRound} / {totalRounds}</div>
-          <div className="score-info">Total: {totalScore} | Round: {score}</div>
-        </div>
-        {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
-          <div className="round-timer">
-            {Math.ceil(roundTimeLeft / 1000)}s
+          <div className="score-info">
+            Total: {totalScore} | Round: {score}
+            {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
+              <span className="round-timer"> {Math.ceil(roundTimeLeft / 1000)}s</span>
+            )}
           </div>
-        )}
+        </div>
         {timeLeft !== null && isGameActive && !showRoundEnd && roundTimeLeft > 0 && (
           <div className="timer-bar">
             <div 
