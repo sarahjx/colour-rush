@@ -173,7 +173,7 @@ function Landing({ gameState }) {
                 onClick={handleSave}
                 disabled={!nickname.trim()}
               >
-                Save
+                Save Nickname
               </Button>
             </div>
 
