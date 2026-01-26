@@ -9,12 +9,14 @@
 .landing-container {
   width: 100%;
   max-width: 500px;
+  overflow: visible;
 }
 
 .landing-content {
   text-align: center;
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 .landing-title {
@@ -32,8 +34,6 @@
   letter-spacing: -0.02em;
   filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.1));
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .landing-form {
