@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import Button from '../components/Button';
 import Modal from '../components/Modal';
+import CreateRoomModal from '../components/CreateRoomModal';
 import './WaitingRoom.css';
 
-function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLeaveRoom, onBackToHome }) {
+function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onStartGame, onLeaveRoom, onBackToHome, onUpdateSettings }) {
   const [copied, setCopied] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -41,6 +43,18 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
 
       <div className="waiting-room-content">
         <h1 className="waiting-room-title">Waiting Room</h1>
+
+        {isHost && (
+          <div className="settings-button-container">
+            <Button
+              variant="secondary"
+              className="settings-btn"
+              onClick={() => setIsSettingsOpen(true)}
+            >
+              Settings
+            </Button>
+          </div>
+        )}
 
         <div className="players-container">
           <h2 className="players-title">Players ({players.length})</h2>
@@ -133,6 +147,24 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
           </p>
         </div>
       </Modal>
+
+      {isHost && (
+        <CreateRoomModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          onCreateRoom={async (settings) => {
+            if (onUpdateSettings) {
+              onUpdateSettings(settings);
+            }
+            setIsSettingsOpen(false);
+          }}
+          nickname={players.find(p => p.isHost)?.nickname || ''}
+          initialSpeed={gameSettings?.speed || 5}
+          initialRounds={gameSettings?.rounds || 3}
+          title="Game Settings"
+          buttonText="Save Settings"
+        />
+      )}
     </div>
   );
 }

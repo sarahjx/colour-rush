@@ -4,12 +4,13 @@ import Room from './pages/Room';
 import WaitingRoom from './pages/WaitingRoom';
 import Countdown from './pages/Countdown';
 import Game from './pages/Game';
+import EndGame from './pages/EndGame';
 import Button from './components/Button';
 import './App.css';
 
 function App() {
   const gameState = useGameState();
-  const { gameStatus, roomCode, players, nickname, gameSettings, leaveRoom, startGame, beginPlaying, endGame } = gameState;
+  const { gameStatus, roomCode, players, nickname, gameSettings, playerScores, leaveRoom, startGame, beginPlaying, endGame } = gameState;
   
   // Determine if current user is host
   const isHost = players.some(player => player.isHost && player.nickname === nickname);
@@ -33,9 +34,11 @@ function App() {
           roomCode={roomCode}
           players={players}
           isHost={isHost}
+          gameSettings={gameSettings}
           onStartGame={handleStartGame}
           onLeaveRoom={handleLeaveRoom}
           onBackToHome={handleBackToMenu}
+          onUpdateSettings={(settings) => gameState.setGameSettings(settings)}
         />
       ) : gameStatus === 'countdown' ? (
         <Countdown onComplete={beginPlaying} />
@@ -48,12 +51,13 @@ function App() {
           onLeaveRoom={handleLeaveRoom}
         />
       ) : gameStatus === 'finished' ? (
-        <Room
+        <EndGame
           roomCode={roomCode}
           players={players}
-          onStartGame={handleStartGame}
+          playerScores={playerScores}
+          onPlayAgain={handleStartGame}
           onLeaveRoom={handleLeaveRoom}
-          onBackToMenu={handleBackToMenu}
+          onBackToHome={handleBackToMenu}
         />
       ) : (
         <Landing gameState={gameState} />

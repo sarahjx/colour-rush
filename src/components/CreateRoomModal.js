@@ -4,11 +4,17 @@ import Modal from './Modal';
 import Button from './Button';
 import './CreateRoomModal.css';
 
-function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname }) {
-  const [speed, setSpeed] = useState(5);
-  const [rounds, setRounds] = useState(3);
+function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialSpeed, initialRounds, title = "Create Room", buttonText = "Start" }) {
+  const [speed, setSpeed] = useState(initialSpeed || 5);
+  const [rounds, setRounds] = useState(initialRounds || 3);
   const [isCreating, setIsCreating] = useState(false);
   const codeDisplayRef = useRef(null);
+
+  // Update state when initial values change
+  useEffect(() => {
+    if (initialSpeed !== undefined) setSpeed(initialSpeed);
+    if (initialRounds !== undefined) setRounds(initialRounds);
+  }, [initialSpeed, initialRounds]);
 
   const handleStart = async () => {
     setIsCreating(true);
@@ -24,14 +30,14 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname }) {
   };
 
   const handleClose = () => {
-    setSpeed(5);
-    setRounds(3);
+    setSpeed(initialSpeed || 5);
+    setRounds(initialRounds || 3);
     setIsCreating(false);
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Room">
+    <Modal isOpen={isOpen} onClose={handleClose} title={title}>
       <div className="create-room-modal-content">
         <div className="room-settings">
           <p className="settings-intro">Configure your game settings</p>
@@ -78,7 +84,7 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname }) {
             variant="primary"
             className="start-room-btn"
           >
-            {isCreating ? 'Creating...' : 'Start'}
+            {isCreating ? 'Saving...' : buttonText}
           </Button>
           <Button
             onClick={handleClose}

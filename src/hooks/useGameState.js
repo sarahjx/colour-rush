@@ -26,6 +26,7 @@ function useGameState() {
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, countdown, playing, finished
   const [scores, setScores] = useState({});
+  const [playerScores, setPlayerScores] = useState({}); // Final player scores from game
   const [gameSettings, setGameSettings] = useState({
     speed: 5, // Default speed (1-10)
     rounds: 3 // Default number of rounds
@@ -92,8 +93,18 @@ function useGameState() {
     setGameStatus('playing');
   };
 
-  const endGame = (finalScore) => {
-    setScores(prev => ({ ...prev, [nickname]: finalScore }));
+  const endGame = (finalScores) => {
+    // finalScores can be either a number (old format) or an object with player scores
+    if (typeof finalScores === 'object' && finalScores !== null) {
+      setPlayerScores(finalScores);
+      // Also update scores for backward compatibility
+      if (finalScores[nickname]) {
+        setScores(prev => ({ ...prev, [nickname]: finalScores[nickname].totalScore || 0 }));
+      }
+    } else {
+      // Old format - just a number
+      setScores(prev => ({ ...prev, [nickname]: finalScores }));
+    }
     setGameStatus('finished');
   };
 
@@ -105,6 +116,7 @@ function useGameState() {
     players,
     gameStatus,
     scores,
+    playerScores,
     gameSettings,
     // Functions
     setNickname: handleSetNickname,

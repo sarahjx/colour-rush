@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState as useStateHook } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
 import './Game.css';
@@ -368,25 +369,11 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
                   variant="primary"
                   className="play-again-btn"
                   onClick={() => {
-                    // Reset game and start from round 1
-                    setCurrentRound(1);
-                    setTotalScore(0);
-                    setScore(0);
-                    setWordsAnswered(0);
-                    setButtonOrder([...COLORS]);
-                    setIsGameActive(true);
-                    setShowRoundEnd(false);
-                    setRoundTimeLeft(totalRoundTime);
+                    // Call onGameEnd to transition to end game screen
+                    onGameEnd(playerScores);
                   }}
                 >
-                  Play Again
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="leave-room-btn"
-                  onClick={onLeaveRoom}
-                >
-                  Leave Room
+                  View Final Results
                 </Button>
               </>
             )}
