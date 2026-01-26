@@ -181,19 +181,22 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 100) {
-            // Word time is up
-            handleTimeUp();
+            // Word time is up - set to 0 and trigger handleTimeUp only once
             return 0;
           }
           return prev - 100;
         });
       }, 100);
       return () => clearInterval(timer);
-    } else if (isGameActive && timeLeft === 0 && roundTimeLeft > 0) {
-      // Time's up, move to next word
-      handleTimeUp();
     }
   }, [isGameActive, timeLeft, showRoundEnd, roundTimeLeft]);
+
+  // Handle time up separately to prevent multiple triggers
+  useEffect(() => {
+    if (isGameActive && timeLeft === 0 && !showRoundEnd && roundTimeLeft > 0) {
+      handleTimeUpFunction();
+    }
+  }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft]);
 
   const startNewWord = () => {
     // Don't start new word if round time is up
@@ -215,6 +218,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     setCurrentColor(color);
     setCurrentInstruction(instruction);
     setTimeLeft(timePerWord);
+    handleTimeUp.current = false; // Reset time up flag when starting new word
 
     // Animate word appearance
     if (wordRef.current) {
