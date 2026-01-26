@@ -1,12 +1,32 @@
+import { useState } from 'react';
 import Button from '../components/Button';
 import './WaitingRoom.css';
 
 function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLeaveRoom }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   return (
     <div className="waiting-room">
       <div className="room-code-corner">
         <span className="room-code-label-small">Room</span>
         <span className="room-code-small">{roomCode}</span>
+        <Button
+          variant="secondary"
+          className="copy-room-code-btn"
+          onClick={handleCopy}
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </Button>
       </div>
 
       <div className="waiting-room-content">
