@@ -30,10 +30,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
 
   const speed = gameSettings?.speed || 5;
   const totalRounds = gameSettings?.rounds || 3;
-  const baseTime = 3000;
+  const baseTime = 5000; // Increased from 3000
   const minTime = 1000;
-  // Progressive speed: start slower, get faster as more words are answered
-  const speedMultiplier = Math.max(0.3, 1 - (wordsAnswered * 0.05));
+  // Progressive speed: start much slower, get faster as more words are answered
+  const speedMultiplier = Math.max(0.3, 1.5 - (wordsAnswered * 0.04)); // Start at 1.5x, slower decrease
   const timePerWord = Math.max(minTime, baseTime * speedMultiplier);
 
   useEffect(() => {
