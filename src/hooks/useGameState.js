@@ -4,7 +4,7 @@ import { generateUniqueRoomCode } from '../utils/roomCodeGenerator';
 function useGameState() {
   // Game state
   const [nickname, setNickname] = useState('');
-  const [nicknameColor, setNicknameColor] = useState('#6366f1'); // Default primary color
+  const [nicknameColor, setNicknameColor] = useState('#ef4444'); // Default primary color (red)
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, playing, finished
