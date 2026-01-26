@@ -26,7 +26,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const [showRoundEnd, setShowRoundEnd] = useState(false);
   const [playerScores, setPlayerScores] = useState({}); // Track scores per player
   const [flashColor, setFlashColor] = useState(null);
-  const [buttonOrder, setButtonOrder] = useState([...COLORS]); // Track button order
+  const [buttonColors, setButtonColors] = useState({...COLOR_VALUES}); // Track button background colors
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
   const flashRef = useRef(null);
@@ -133,21 +133,30 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     }
 
     if (isGameActive && shouldChangeButtonColors && buttonChangeInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
-      // Change button colors (rotate positions) at difficulty-based intervals
+      // Change button background colors at difficulty-based intervals
       buttonShuffleIntervalRef.current = setInterval(() => {
-        setButtonOrder(prev => {
-          // Rotate: move first to last (left to right becomes middle, right, left)
-          const rotated = [...prev];
-          const first = rotated.shift();
-          rotated.push(first);
-          console.log('Button order changed from', prev, 'to', rotated);
-          return rotated;
+        setButtonColors(prev => {
+          // Shuffle the color values - randomly reassign colors to buttons
+          const colorValues = Object.values(COLOR_VALUES);
+          const shuffled = [...colorValues];
+          // Fisher-Yates shuffle
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          // Create new object with shuffled colors
+          const newColors = {};
+          COLORS.forEach((color, index) => {
+            newColors[color] = shuffled[index];
+          });
+          console.log('Button colors changed:', newColors);
+          return newColors;
         });
       }, buttonChangeInterval);
     } else if (!shouldChangeButtonColors || !buttonChangeInterval) {
-      // Reset to original order when not changing colors (easy mode or when game is not active)
+      // Reset to original colors when not changing (easy mode or when game is not active)
       if (!isGameActive || showRoundEnd) {
-        setButtonOrder([...COLORS]);
+        setButtonColors({...COLOR_VALUES});
       }
     }
 
@@ -324,7 +333,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       const nextRoundTimeMultiplier = Math.max(0.7, 1.2 - ((nextRound - 1) * 0.1));
       const nextRoundTime = baseRoundTime * nextRoundTimeMultiplier;
       setRoundTimeLeft(nextRoundTime); // Start fresh round timer for next round
-      setButtonOrder([...COLORS]); // Reset button order
+      setButtonColors({...COLOR_VALUES}); // Reset button colors to original
       setIsGameActive(true);
       setShowRoundEnd(false);
     }
@@ -439,14 +448,14 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
               {currentWord}
             </div>
             <div className="color-buttons">
-              {buttonOrder.map((color) => (
+              {COLORS.map((color) => (
                 <button
                   key={color}
                   className="color-button"
                   onClick={() => handleColorClick(color)}
                   style={{ 
-                    backgroundColor: COLOR_VALUES[color],
-                    borderColor: COLOR_VALUES[color]
+                    backgroundColor: buttonColors[color] || COLOR_VALUES[color],
+                    borderColor: buttonColors[color] || COLOR_VALUES[color]
                   }}
                 >
                   {color}
