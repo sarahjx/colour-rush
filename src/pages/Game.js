@@ -140,6 +140,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
           const rotated = [...prev];
           const first = rotated.shift();
           rotated.push(first);
+          console.log('Button order changed from', prev, 'to', rotated);
           return rotated;
         });
       }, buttonChangeInterval);
@@ -306,7 +307,8 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     setCurrentColor('');
     setTimeLeft(null);
     setRoundTimeLeft(totalRoundTime); // Start round timer
-    setButtonOrder([...COLORS]); // Reset button order
+    setButtonOrder([...COLORS]); // Reset button order to original
+    console.log('Game started, buttonOrder reset to:', [...COLORS]);
   };
 
   const startNextRound = () => {
