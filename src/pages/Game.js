@@ -270,13 +270,17 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
 
   const startNextRound = () => {
     if (currentRound < totalRounds) {
-      setCurrentRound(currentRound + 1);
+      const nextRound = currentRound + 1;
+      setCurrentRound(nextRound);
       setScore(0); // Reset round score, but keep totalScore
       setWordsAnswered(0);
       setCurrentWord('');
       setCurrentColor('');
       setTimeLeft(null);
-      setRoundTimeLeft(totalRoundTime); // Start fresh round timer
+      // Calculate round time for the NEXT round
+      const nextRoundTimeMultiplier = Math.max(0.7, 1.2 - ((nextRound - 1) * 0.1));
+      const nextRoundTime = baseRoundTime * nextRoundTimeMultiplier;
+      setRoundTimeLeft(nextRoundTime); // Start fresh round timer for next round
       setButtonOrder([...COLORS]); // Reset button order
       setIsGameActive(true);
       setShowRoundEnd(false);
