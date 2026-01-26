@@ -37,7 +37,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const baseTime = 5000;
   const minTime = 1000;
   // Round timer: total time allowed for the round (gets shorter each round)
-  const baseRoundTime = 60000; // 60 seconds base
+  const baseRoundTime = 20000; // 20 seconds base
   const roundTimeMultiplier = Math.max(0.7, 1.2 - ((currentRound - 1) * 0.1)); // Each round has less time
   const totalRoundTime = baseRoundTime * roundTimeMultiplier;
   
