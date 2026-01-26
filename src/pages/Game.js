@@ -46,12 +46,20 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   // Shuffle interval increases with round number (higher round = slower shuffling)
   const shuffleInterval = useMemo(() => 2000 + (currentRound * 500), [currentRound]); // Round 2: 3s, Round 3: 3.5s, Round 4: 4s, etc.
   
+  // Speed setting multiplier: speed 1 = slowest (1.0x), speed 10 = fastest (0.3x)
+  // Maps speed 1-10 to multiplier range 1.0 to 0.3
+  const speedMultiplier = useMemo(() => {
+    // Speed 1 = 1.0, Speed 10 = 0.3, linear interpolation
+    return 1.0 - ((speed - 1) / 9) * 0.7;
+  }, [speed]);
+  
   // Progressive speed: start much slower, get faster as more words are answered
   // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
   const roundSpeedMultiplier = Math.max(0.6, 1.2 - ((currentRound - 1) * 0.15)); // Each round is faster
   const wordSpeedMultiplier = Math.max(0.3, 1.5 - (wordsAnswered * 0.04)); // Within round, gets faster
-  const speedMultiplier = roundSpeedMultiplier * wordSpeedMultiplier;
-  const timePerWord = Math.max(minTime, baseTime * speedMultiplier);
+  const progressiveMultiplier = roundSpeedMultiplier * wordSpeedMultiplier;
+  // Apply both speed setting and progressive multipliers
+  const timePerWord = Math.max(minTime, baseTime * speedMultiplier * progressiveMultiplier);
 
   useEffect(() => {
     // Auto-start game when component mounts (after countdown)
