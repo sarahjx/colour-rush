@@ -26,9 +26,11 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const [showRoundEnd, setShowRoundEnd] = useState(false);
   const [playerScores, setPlayerScores] = useState({}); // Track scores per player
   const [flashColor, setFlashColor] = useState(null);
+  const [buttonOrder, setButtonOrder] = useState([...COLORS]); // Track button order
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
   const flashRef = useRef(null);
+  const buttonShuffleIntervalRef = useRef(null);
 
   const speed = gameSettings?.speed || 5;
   const totalRounds = gameSettings?.rounds || 3;
@@ -38,6 +40,9 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const baseRoundTime = 60000; // 60 seconds base
   const roundTimeMultiplier = Math.max(0.7, 1.2 - ((currentRound - 1) * 0.1)); // Each round has less time
   const totalRoundTime = baseRoundTime * roundTimeMultiplier;
+  
+  // Determine if we should shuffle buttons (last 2 rounds)
+  const shouldShuffleButtons = currentRound > totalRounds - 2;
   
   // Progressive speed: start much slower, get faster as more words are answered
   // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
@@ -75,6 +80,39 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       return () => clearInterval(timer);
     }
   }, [isGameActive, roundTimeLeft]);
+
+  // Button shuffling for last 2 rounds
+  useEffect(() => {
+    if (isGameActive && shouldShuffleButtons && roundTimeLeft > 0) {
+      // Shuffle buttons every 2-3 seconds
+      buttonShuffleIntervalRef.current = setInterval(() => {
+        setButtonOrder(prev => {
+          const shuffled = [...prev];
+          // Fisher-Yates shuffle
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          return shuffled;
+        });
+      }, 2000 + Math.random() * 1000); // Random interval between 2-3 seconds
+      
+      return () => {
+        if (buttonShuffleIntervalRef.current) {
+          clearInterval(buttonShuffleIntervalRef.current);
+        }
+      };
+    } else {
+      // Reset to original order when not shuffling
+      if (buttonShuffleIntervalRef.current) {
+        clearInterval(buttonShuffleIntervalRef.current);
+        buttonShuffleIntervalRef.current = null;
+      }
+      if (!shouldShuffleButtons) {
+        setButtonOrder([...COLORS]);
+      }
+    }
+  }, [isGameActive, shouldShuffleButtons, roundTimeLeft]);
 
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
@@ -224,6 +262,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     setCurrentColor('');
     setTimeLeft(null);
     setRoundTimeLeft(totalRoundTime); // Start round timer
+    setButtonOrder([...COLORS]); // Reset button order
   };
 
   const startNextRound = () => {
@@ -235,6 +274,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       setCurrentColor('');
       setTimeLeft(null);
       setRoundTimeLeft(totalRoundTime); // Start fresh round timer
+      setButtonOrder([...COLORS]); // Reset button order
       setIsGameActive(true);
       setShowRoundEnd(false);
     }
@@ -352,7 +392,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
               {currentWord}
             </div>
             <div className="color-buttons">
-              {COLORS.map((color) => (
+              {buttonOrder.map((color) => (
                 <button
                   key={color}
                   className="color-button"
