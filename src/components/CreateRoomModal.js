@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import './CreateRoomModal.css';
@@ -8,7 +7,6 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialDiffi
   const [difficulty, setDifficulty] = useState(initialDifficulty || 'normal');
   const [rounds, setRounds] = useState(initialRounds || 3);
   const [isCreating, setIsCreating] = useState(false);
-  const codeDisplayRef = useRef(null);
 
   // Update state when initial values change
   useEffect(() => {

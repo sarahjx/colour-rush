@@ -1,11 +1,9 @@
 import useGameState from './hooks/useGameState';
 import Landing from './pages/Landing';
-import Room from './pages/Room';
 import WaitingRoom from './pages/WaitingRoom';
 import Countdown from './pages/Countdown';
 import Game from './pages/Game';
 import EndGame from './pages/EndGame';
-import Button from './components/Button';
 import './App.css';
 
 function App() {

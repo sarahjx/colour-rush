@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { gsap } from 'gsap';
 import './Countdown.css';
 
 function Countdown({ onComplete }) {
