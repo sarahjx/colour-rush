@@ -3,22 +3,27 @@ import { generateUniqueRoomCode } from '../utils/roomCodeGenerator';
 
 function useGameState() {
   // Game state
-  const [username, setUsername] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [nicknameColor, setNicknameColor] = useState('#6366f1'); // Default primary color
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, playing, finished
   const [scores, setScores] = useState({});
 
   // Functions
-  const handleSetUsername = (name) => {
-    setUsername(name);
+  const handleSetNickname = (name) => {
+    setNickname(name);
+  };
+
+  const handleSetNicknameColor = (color) => {
+    setNicknameColor(color);
   };
 
   const createRoom = async () => {
     // Generate a unique room code
     const code = await generateUniqueRoomCode();
     setRoomCode(code);
-    setPlayers([{ username, id: Date.now() }]);
+    setPlayers([{ nickname, nicknameColor, id: Date.now(), isHost: true }]);
     setGameStatus('waiting');
     setScores({});
     return code;
@@ -41,13 +46,15 @@ function useGameState() {
 
   return {
     // State
-    username,
+    nickname,
+    nicknameColor,
     roomCode,
     players,
     gameStatus,
     scores,
     // Functions
-    setUsername: handleSetUsername,
+    setNickname: handleSetNickname,
+    setNicknameColor: handleSetNicknameColor,
     createRoom,
     joinRoom,
     leaveRoom,
