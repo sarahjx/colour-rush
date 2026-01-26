@@ -24,7 +24,7 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
         className="info-button"
         onClick={() => setIsHowToPlayOpen(true)}
       >
-        ℹ️ How to Play
+        How to Play
       </Button>
 
       <div className="room-code-corner">
