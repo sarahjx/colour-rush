@@ -2,11 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
 import CreateRoomModal from '../components/CreateRoomModal';
+import Modal from '../components/Modal';
 import './Landing.css';
 
 function Landing({ gameState }) {
   const { nickname, setNickname, nicknameColour, setNicknameColour, saveNicknameAndColour, createRoom, joinRoom } = gameState;
   const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
+  const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const titleRef = useRef(null);
   const buttonGroupRef = useRef(null);
   const inputRef = useRef(null);
@@ -117,6 +119,14 @@ function Landing({ gameState }) {
 
   return (
     <div className="landing">
+      <Button
+        variant="secondary"
+        className="info-button-landing"
+        onClick={() => setIsHowToPlayOpen(true)}
+      >
+        How to Play
+      </Button>
+
       <div className="landing-container">
         <div className="landing-content">
           <h1 ref={titleRef} className="landing-title">Color Rush</h1>
@@ -203,6 +213,29 @@ function Landing({ gameState }) {
         onCreateRoom={handleCreateRoom}
         nickname={nickname}
       />
+
+      <Modal
+        isOpen={isHowToPlayOpen}
+        onClose={() => setIsHowToPlayOpen(false)}
+        title="How to Play"
+      >
+        <div className="how-to-play-content">
+          <h3>Game Rules</h3>
+          <ol>
+            <li>Enter your nickname and choose your colour</li>
+            <li>Create a room or join an existing one with a room code</li>
+            <li>Wait for all players to join the waiting room</li>
+            <li>The host starts the game when ready</li>
+            <li>Match the colours as fast as you can!</li>
+          </ol>
+          <h3>Tips</h3>
+          <ul>
+            <li>Share your room code with friends to play together</li>
+            <li>Adjust game speed and number of rounds before starting</li>
+            <li>Have fun and enjoy the colourful challenge!</li>
+          </ul>
+        </div>
+      </Modal>
     </div>
   );
 }

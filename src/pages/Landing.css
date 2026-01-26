@@ -4,6 +4,19 @@
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
+  position: relative;
+}
+
+.info-button-landing {
+  position: fixed !important;
+  top: 1.5rem !important;
+  left: 1.5rem !important;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 800;
+  z-index: 1000 !important;
+  white-space: nowrap;
+  margin: 0;
 }
 
 .landing-container {
@@ -188,4 +201,42 @@
   .landing-form {
     gap: 2.5rem;
   }
+
+  .info-button-landing {
+    top: 1rem !important;
+    left: 1rem !important;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+.how-to-play-content {
+  text-align: left;
+  padding: 1rem 0;
+}
+
+.how-to-play-content h3 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.how-to-play-content h3:first-child {
+  margin-top: 0;
+}
+
+.how-to-play-content ol,
+.how-to-play-content ul {
+  margin: 0;
+  padding-left: 2rem;
+}
+
+.how-to-play-content li {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  color: var(--color-text);
 }
