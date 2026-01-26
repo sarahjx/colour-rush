@@ -30,25 +30,24 @@
 
 .game-header {
   margin-bottom: 2rem;
-  text-align: center;
 }
 
-.round-info {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: var(--color-text);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.5rem;
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
   font-family: 'Slackey', sans-serif;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
+.round-info,
 .score-info {
   font-size: 1.5rem;
   font-weight: 900;
   color: var(--color-text);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
-  font-family: 'Slackey', sans-serif;
-  text-align: center;
 }
 
 .round-timer {
@@ -259,10 +258,20 @@
   color: var(--color-primary);
 }
 
-.next-round-btn {
+.next-round-btn,
+.play-again-btn,
+.leave-room-btn {
   font-size: 2rem;
   padding: 1.5rem 4rem;
   font-weight: 900;
+  margin: 0.5rem;
+}
+
+.round-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 @media (max-width: 640px) {

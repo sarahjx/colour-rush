@@ -45,6 +45,7 @@ function App() {
           players={players}
           onRoundEnd={endGame}
           onGameEnd={endGame}
+          onLeaveRoom={handleLeaveRoom}
         />
       ) : gameStatus === 'finished' ? (
         <Room

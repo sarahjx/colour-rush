@@ -12,7 +12,7 @@ const COLOR_VALUES = {
 
 const INSTRUCTIONS = ['WORD', 'COLOR'];
 
-function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
+function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
   const [totalScore, setTotalScore] = useState(0); // Cumulative score across all rounds
@@ -41,8 +41,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const roundTimeMultiplier = Math.max(0.7, 1.2 - ((currentRound - 1) * 0.1)); // Each round has less time
   const totalRoundTime = baseRoundTime * roundTimeMultiplier;
   
-  // Determine if we should shuffle buttons (last 2 rounds)
-  const shouldShuffleButtons = currentRound > totalRounds - 2;
+  // Determine if we should shuffle buttons (after round 1)
+  const shouldShuffleButtons = currentRound > 1;
+  // Shuffle interval increases with round number (higher round = slower shuffling)
+  const shuffleInterval = 2000 + (currentRound * 500); // Round 2: 3s, Round 3: 3.5s, Round 4: 4s, etc.
   
   // Progressive speed: start much slower, get faster as more words are answered
   // Also gets faster each round (round 1 is slower, round 2 is faster, etc.)
@@ -81,21 +83,19 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
     }
   }, [isGameActive, roundTimeLeft]);
 
-  // Button shuffling for last 2 rounds
+  // Button shuffling after round 1
   useEffect(() => {
     if (isGameActive && shouldShuffleButtons && roundTimeLeft > 0) {
-      // Shuffle buttons every 2-3 seconds
+      // Rotate buttons (shift positions) at intervals that increase with round number
       buttonShuffleIntervalRef.current = setInterval(() => {
         setButtonOrder(prev => {
-          const shuffled = [...prev];
-          // Fisher-Yates shuffle
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          return shuffled;
+          // Rotate: move first to last (left to right becomes middle, right, left)
+          const rotated = [...prev];
+          const first = rotated.shift();
+          rotated.push(first);
+          return rotated;
         });
-      }, 2000 + Math.random() * 1000); // Random interval between 2-3 seconds
+      }, shuffleInterval);
       
       return () => {
         if (buttonShuffleIntervalRef.current) {
@@ -112,7 +112,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
         setButtonOrder([...COLORS]);
       }
     }
-  }, [isGameActive, shouldShuffleButtons, roundTimeLeft]);
+  }, [isGameActive, shouldShuffleButtons, roundTimeLeft, shuffleInterval]);
 
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
@@ -288,12 +288,14 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       />
       
       <div className="game-header">
-        <div className="round-info">Round {currentRound} / {totalRounds}</div>
-        <div className="score-info">
-          Total: {totalScore} | Round: {score}
-          {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
-            <span className="round-timer"> {Math.ceil(roundTimeLeft / 1000)}s</span>
-          )}
+        <div className="game-info">
+          <div className="round-info">Round {currentRound} / {totalRounds}</div>
+          <div className="score-info">
+            Total: {totalScore} | Round: {score}
+            {roundTimeLeft !== null && isGameActive && !showRoundEnd && (
+              <span className="round-timer"> {Math.ceil(roundTimeLeft / 1000)}s</span>
+            )}
+          </div>
         </div>
         {timeLeft !== null && isGameActive && !showRoundEnd && roundTimeLeft > 0 && (
           <div className="timer-bar">
@@ -346,13 +348,32 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
                 Start Round {currentRound + 1}
               </Button>
             ) : (
-              <Button
-                variant="primary"
-                className="next-round-btn"
-                onClick={() => onGameEnd(playerScores)}
-              >
-                View Final Results
-              </Button>
+              <>
+                <Button
+                  variant="primary"
+                  className="play-again-btn"
+                  onClick={() => {
+                    // Reset game and start from round 1
+                    setCurrentRound(1);
+                    setTotalScore(0);
+                    setScore(0);
+                    setWordsAnswered(0);
+                    setButtonOrder([...COLORS]);
+                    setIsGameActive(true);
+                    setShowRoundEnd(false);
+                    setRoundTimeLeft(totalRoundTime);
+                  }}
+                >
+                  Play Again
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="leave-room-btn"
+                  onClick={onLeaveRoom}
+                >
+                  Leave Room
+                </Button>
+              </>
             )}
           </div>
         ) : !isGameActive ? (
