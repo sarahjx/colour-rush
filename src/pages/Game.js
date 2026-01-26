@@ -328,8 +328,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     setCurrentColor('');
     setTimeLeft(null);
     setRoundTimeLeft(totalRoundTime); // Start round timer
-    setButtonOrder([...COLORS]); // Reset button order to original
-    console.log('Game started, buttonOrder reset to:', [...COLORS]);
+    setButtonColors({...COLOR_VALUES}); // Reset button colors to original
   };
 
   const startNextRound = () => {
