@@ -59,7 +59,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         };
       case 'difficult':
         return {
-          buttonChangeInterval: 5000, // Change every 5 seconds
+          buttonChangeInterval: 3000, // Change every 3 seconds
           baseSpeedMultiplier: 0.4, // Fastest
           roundSpeedIncrease: 0.15, // Fastest ramp up per round
         };
@@ -134,6 +134,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     }
 
     if (isGameActive && shouldChangeButtonColors && buttonChangeInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
+      console.log('Starting button color changes with interval:', buttonChangeInterval, 'ms');
       // Change button background colors at difficulty-based intervals
       buttonShuffleIntervalRef.current = setInterval(() => {
         setButtonColors(prev => {
@@ -150,11 +151,11 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
           COLORS.forEach((color, index) => {
             newColors[color] = shuffled[index];
           });
-          console.log('Button colors changed:', newColors);
+          console.log('Button colors changed from', prev, 'to', newColors);
           return newColors;
         });
       }, buttonChangeInterval);
-    } else if (!shouldChangeButtonColors || !buttonChangeInterval) {
+    } else {
       // Reset to original colors when not changing (easy mode or when game is not active)
       if (!isGameActive || showRoundEnd) {
         setButtonColors({...COLOR_VALUES});
