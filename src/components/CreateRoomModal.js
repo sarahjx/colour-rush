@@ -4,7 +4,7 @@ import Modal from './Modal';
 import Button from './Button';
 import './CreateRoomModal.css';
 
-function CreateRoomModal({ isOpen, onClose, onCreateRoom, username }) {
+function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname }) {
   const [isCreating, setIsCreating] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -56,7 +56,7 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, username }) {
         {!roomCode ? (
           <>
             <div className="creating-room-message">
-              <p>Ready to create a room for <strong>{username}</strong>?</p>
+              <p>Ready to create a room for <strong>{nickname}</strong>?</p>
               <p className="sub-message">Share the room code with friends to play together!</p>
             </div>
             <div className="modal-button-group">
