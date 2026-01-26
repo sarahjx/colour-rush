@@ -126,7 +126,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     }
   }, [isGameActive, roundTimeLeft]);
 
-  // Button color changing based on difficulty
+  // Button display toggle based on difficulty (words vs colored squares)
   useEffect(() => {
     // Clear any existing interval first
     if (buttonShuffleIntervalRef.current) {
@@ -134,32 +134,19 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       buttonShuffleIntervalRef.current = null;
     }
 
-    if (isGameActive && shouldChangeButtonColors && buttonChangeInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
-      console.log('Starting button color changes with interval:', buttonChangeInterval, 'ms');
-      // Change button background colors at difficulty-based intervals
+    if (isGameActive && shouldToggleButtonDisplay && buttonToggleInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
+      // Toggle between words and colored squares at difficulty-based intervals
       buttonShuffleIntervalRef.current = setInterval(() => {
-        setButtonColors(prev => {
-          // Shuffle the color values - randomly reassign colors to buttons
-          const colorValues = Object.values(COLOR_VALUES);
-          const shuffled = [...colorValues];
-          // Fisher-Yates shuffle
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          // Create new object with shuffled colors
-          const newColors = {};
-          COLORS.forEach((color, index) => {
-            newColors[color] = shuffled[index];
-          });
-          console.log('Button colors changed from', prev, 'to', newColors);
-          return newColors;
+        setShowButtonText(prev => {
+          const newValue = !prev;
+          console.log('Button display toggled:', newValue ? 'WORDS' : 'SQUARES');
+          return newValue;
         });
-      }, buttonChangeInterval);
+      }, buttonToggleInterval);
     } else {
-      // Reset to original colors when not changing (easy mode or when game is not active)
-      if (!isGameActive || showRoundEnd) {
-        setButtonColors({...COLOR_VALUES});
+      // Always show words in easy mode or when game is not active
+      if (!shouldToggleButtonDisplay || !isGameActive || showRoundEnd) {
+        setShowButtonText(true);
       }
     }
 
@@ -169,7 +156,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         buttonShuffleIntervalRef.current = null;
       }
     };
-  }, [isGameActive, shouldChangeButtonColors, buttonChangeInterval, roundTimeLeft, showRoundEnd]);
+  }, [isGameActive, shouldToggleButtonDisplay, buttonToggleInterval, roundTimeLeft, showRoundEnd]);
 
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
