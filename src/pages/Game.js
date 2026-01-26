@@ -15,6 +15,7 @@ const INSTRUCTIONS = ['WORD', 'COLOR'];
 function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
+  const [totalScore, setTotalScore] = useState(0); // Cumulative score across all rounds
   const [wordsAnswered, setWordsAnswered] = useState(0);
   const [currentWord, setCurrentWord] = useState('');
   const [currentColor, setCurrentColor] = useState('');
@@ -22,7 +23,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const [timeLeft, setTimeLeft] = useState(null);
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
-  const [roundScores, setRoundScores] = useState({});
+  const [playerScores, setPlayerScores] = useState({}); // Track scores per player
   const [flashColor, setFlashColor] = useState(null);
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
@@ -55,7 +56,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   useEffect(() => {
     if (showRoundEnd && currentRound >= totalRounds) {
       // All rounds complete
-      onGameEnd(roundScores);
+      onGameEnd(playerScores);
     }
   }, [showRoundEnd, currentRound, totalRounds]);
 
@@ -128,11 +129,30 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const endRound = () => {
     setIsGameActive(false);
     setShowRoundEnd(true);
-    // Save score for this round
-    setRoundScores(prev => ({
-      ...prev,
-      [`round${currentRound}`]: score
-    }));
+    // Add current round score to total score
+    const newTotalScore = totalScore + score;
+    setTotalScore(newTotalScore);
+    
+    // Update player scores (for multiplayer, this would sync with other players)
+    // For now, just track the current player's score
+    setPlayerScores(prev => {
+      const updated = { ...prev };
+      if (players && players.length > 0) {
+        players.forEach(player => {
+          if (!updated[player.id]) {
+            updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
+          }
+          // For now, only update current player's score
+          // In multiplayer, this would be synced via Firebase
+          if (player.nickname === 'You' || true) {
+            updated[player.id].totalScore = newTotalScore;
+          }
+        });
+      } else {
+        updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
+      }
+      return updated;
+    });
   };
 
   const handleColorClick = (clickedColor) => {
@@ -175,7 +195,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const startNextRound = () => {
     if (currentRound < totalRounds) {
       setCurrentRound(currentRound + 1);
-      setScore(0);
+      setScore(0); // Reset round score, but keep totalScore
       setWordsAnswered(0);
       setIsGameActive(true);
       setShowRoundEnd(false);
@@ -192,7 +212,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       <div className="game-header">
         <div className="game-info">
           <div className="round-info">Round {currentRound} / {totalRounds}</div>
-          <div className="score-info">Score: {score}</div>
+          <div className="score-info">Total: {totalScore} | Round: {score}</div>
         </div>
         {timeLeft !== null && isGameActive && !showRoundEnd && (
           <div className="timer-bar">
@@ -209,26 +229,29 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
           <div className="round-end">
             <h2 className="round-end-title">Round {currentRound} Complete!</h2>
             <div className="leaderboard">
-              <h3 className="leaderboard-title">Scores</h3>
+              <h3 className="leaderboard-title">Total Scores</h3>
               <div className="leaderboard-list">
                 {players && players.length > 0 ? (
-                  players.map((player) => (
-                    <div key={player.id} className="leaderboard-item">
-                      <span 
-                        className="leaderboard-nickname"
-                        style={{ color: player.nicknameColour || '#ef4444' }}
-                      >
-                        {player.nickname}
-                      </span>
-                      <span className="leaderboard-score">
-                        {roundScores[`round${currentRound}`] || 0}
-                      </span>
-                    </div>
-                  ))
+                  players.map((player) => {
+                    const playerScoreData = playerScores[player.id] || { totalScore: 0 };
+                    return (
+                      <div key={player.id} className="leaderboard-item">
+                        <span 
+                          className="leaderboard-nickname"
+                          style={{ color: player.nicknameColour || '#ef4444' }}
+                        >
+                          {player.nickname}
+                        </span>
+                        <span className="leaderboard-score">
+                          {playerScoreData.totalScore || 0}
+                        </span>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="leaderboard-item">
                     <span className="leaderboard-nickname">You</span>
-                    <span className="leaderboard-score">{score}</span>
+                    <span className="leaderboard-score">{totalScore}</span>
                   </div>
                 )}
               </div>
@@ -245,7 +268,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
               <Button
                 variant="primary"
                 className="next-round-btn"
-                onClick={() => onGameEnd(roundScores)}
+                onClick={() => onGameEnd(playerScores)}
               >
                 View Final Results
               </Button>
