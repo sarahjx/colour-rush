@@ -467,11 +467,11 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
                   className="color-button"
                   onClick={() => handleColorClick(color)}
                   style={{ 
-                    backgroundColor: buttonColors[color] || COLOR_VALUES[color],
-                    borderColor: buttonColors[color] || COLOR_VALUES[color]
+                    backgroundColor: COLOR_VALUES[color],
+                    borderColor: COLOR_VALUES[color]
                   }}
                 >
-                  {color}
+                  {showButtonText ? color : ''}
                 </button>
               ))}
             </div>
