@@ -31,6 +31,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const instructionRef = useRef(null);
   const flashRef = useRef(null);
   const buttonShuffleIntervalRef = useRef(null);
+  const handleTimeUpRef = useRef(false);
 
   const difficulty = gameSettings?.difficulty || 'normal';
   const totalRounds = gameSettings?.rounds || 3;
@@ -194,7 +195,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   // Handle time up separately to prevent multiple triggers
   useEffect(() => {
     if (isGameActive && timeLeft === 0 && !showRoundEnd && roundTimeLeft > 0) {
-      handleTimeUpFunction();
+      handleTimeUp();
     }
   }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft]);
 
@@ -218,7 +219,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     setCurrentColor(color);
     setCurrentInstruction(instruction);
     setTimeLeft(timePerWord);
-    handleTimeUp.current = false; // Reset time up flag when starting new word
+    handleTimeUpRef.current = false; // Reset time up flag when starting new word
 
     // Animate word appearance
     if (wordRef.current) {
@@ -243,14 +244,21 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   };
 
   const handleTimeUp = () => {
+    // Prevent multiple calls using ref
+    if (handleTimeUpRef.current) return;
+    handleTimeUpRef.current = true;
+    
     // Time's up - counts as wrong answer (no score increase, flash red)
     showFlash('red');
     
     // Move to next word after flash (score stays the same - wrong answer)
     setTimeout(() => {
-      if (roundTimeLeft > 0) {
+      if (roundTimeLeft > 0 && isGameActive && !showRoundEnd) {
         setWordsAnswered(prev => prev + 1);
+        handleTimeUpRef.current = false; // Reset flag
         startNewWord();
+      } else {
+        handleTimeUpRef.current = false; // Reset flag
       }
     }, 400);
   };
