@@ -82,7 +82,14 @@ function useGameState() {
     setPlayers([]);
     setGameStatus('idle');
     setScores({});
+    setPlayerScores({});
     // TODO: Remove player from room via Firebase
+  };
+
+  const returnToWaitingRoom = () => {
+    setGameStatus('waiting');
+    setPlayerScores({});
+    // Reset game state but keep room and players
   };
 
   const startGame = () => {
@@ -126,6 +133,7 @@ function useGameState() {
     createRoom,
     joinRoom,
     leaveRoom,
+    returnToWaitingRoom,
     startGame,
     beginPlaying,
     endGame,

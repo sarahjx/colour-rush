@@ -10,7 +10,7 @@ import './App.css';
 
 function App() {
   const gameState = useGameState();
-  const { gameStatus, roomCode, players, nickname, gameSettings, playerScores, leaveRoom, startGame, beginPlaying, endGame } = gameState;
+  const { gameStatus, roomCode, players, nickname, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, endGame } = gameState;
   
   // Determine if current user is host
   const isHost = players.some(player => player.isHost && player.nickname === nickname);
@@ -55,7 +55,7 @@ function App() {
           roomCode={roomCode}
           players={players}
           playerScores={playerScores}
-          onPlayAgain={handleStartGame}
+          onPlayAgain={() => returnToWaitingRoom()}
           onLeaveRoom={handleLeaveRoom}
           onBackToHome={handleBackToMenu}
         />
