@@ -5,111 +5,89 @@ import Button from './Button';
 import './CreateRoomModal.css';
 
 function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname }) {
+  const [speed, setSpeed] = useState(5);
+  const [rounds, setRounds] = useState(3);
   const [isCreating, setIsCreating] = useState(false);
-  const [roomCode, setRoomCode] = useState('');
-  const [copied, setCopied] = useState(false);
   const codeDisplayRef = useRef(null);
 
-  useEffect(() => {
-    if (roomCode && codeDisplayRef.current) {
-      gsap.fromTo(
-        codeDisplayRef.current,
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.7)' }
-      );
-    }
-  }, [roomCode]);
-
-  const handleCreate = async () => {
+  const handleStart = async () => {
     setIsCreating(true);
     try {
-      const code = await onCreateRoom();
-      setRoomCode(code);
+      const settings = { speed: parseInt(speed), rounds: parseInt(rounds) };
+      await onCreateRoom(settings);
+      // Modal will close and navigation happens via App.js
+      handleClose();
     } catch (error) {
       console.error('Error creating room:', error);
       setIsCreating(false);
     }
   };
 
-  const handleCopy = async () => {
-    if (roomCode) {
-      try {
-        await navigator.clipboard.writeText(roomCode);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy:', err);
-      }
-    }
-  };
-
   const handleClose = () => {
-    setRoomCode('');
+    setSpeed(5);
+    setRounds(3);
     setIsCreating(false);
-    setCopied(false);
     onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Create Room">
       <div className="create-room-modal-content">
-        {!roomCode ? (
-          <>
-            <div className="creating-room-message">
-              <p>Ready to create a room for <strong>{nickname}</strong>?</p>
-              <p className="sub-message">Share the room code with friends to play together!</p>
+        <div className="room-settings">
+          <p className="settings-intro">Configure your game settings</p>
+          
+          <div className="setting-group">
+            <label htmlFor="speed" className="setting-label">
+              Game Speed: <span className="setting-value">{speed}</span>
+            </label>
+            <input
+              id="speed"
+              type="range"
+              min="1"
+              max="10"
+              value={speed}
+              onChange={(e) => setSpeed(e.target.value)}
+              className="setting-slider"
+            />
+            <div className="setting-range">
+              <span>Slow</span>
+              <span>Fast</span>
             </div>
-            <div className="modal-button-group">
-              <Button
-                onClick={handleCreate}
-                disabled={isCreating}
-                variant="primary"
-                className="create-room-confirm-btn"
-              >
-                {isCreating ? 'Creating...' : 'Create Room'}
-              </Button>
-              <Button
-                onClick={handleClose}
-                variant="secondary"
-                className="cancel-btn"
-              >
-                Cancel
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="room-created-content">
-              <p className="success-message">Room created successfully!</p>
-              <div className="room-code-section">
-                <label className="room-code-label">Room Code</label>
-                <div ref={codeDisplayRef} className="room-code-display-modal">
-                  {roomCode}
-                </div>
-                <Button
-                  onClick={handleCopy}
-                  variant="primary"
-                  className="copy-code-btn"
-                >
-                  {copied ? 'Copied!' : 'Copy Code'}
-                </Button>
-              </div>
-              <p className="share-message">Share this code with friends to join your room!</p>
-            </div>
-            <div className="modal-button-group">
-              <Button
-                onClick={() => {
-                  handleClose();
-                  // Navigation will happen automatically via App.js when gameStatus is 'waiting'
-                }}
-                variant="primary"
-                className="continue-btn"
-              >
-                Continue to Room
-              </Button>
-            </div>
-          </>
-        )}
+          </div>
+
+          <div className="setting-group">
+            <label htmlFor="rounds" className="setting-label">
+              Number of Rounds: <span className="setting-value">{rounds}</span>
+            </label>
+            <input
+              id="rounds"
+              type="number"
+              min="1"
+              max="10"
+              value={rounds}
+              onChange={(e) => setRounds(e.target.value)}
+              className="setting-input"
+            />
+          </div>
+        </div>
+
+        <div className="modal-button-group">
+          <Button
+            onClick={handleStart}
+            disabled={isCreating || speed < 1 || speed > 10 || rounds < 1 || rounds > 10}
+            variant="primary"
+            className="start-room-btn"
+          >
+            {isCreating ? 'Creating...' : 'Start'}
+          </Button>
+          <Button
+            onClick={handleClose}
+            variant="secondary"
+            className="cancel-btn"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </Modal>
   );

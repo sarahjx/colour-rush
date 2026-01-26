@@ -55,9 +55,9 @@ function Landing({ gameState }) {
     setIsCreateRoomModalOpen(true);
   };
 
-  const handleCreateRoom = async () => {
+  const handleCreateRoom = async (settings) => {
     try {
-      const code = await createRoom();
+      const code = await createRoom(settings);
       return code;
     } catch (error) {
       console.error('Error creating room:', error);

@@ -2,6 +2,95 @@
   text-align: center;
 }
 
+.room-settings {
+  margin-bottom: 2rem;
+}
+
+.settings-intro {
+  font-size: 1rem;
+  color: var(--color-text);
+  margin-bottom: 2rem;
+}
+
+.setting-group {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.setting-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+}
+
+.setting-value {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.setting-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-gray-light);
+  outline: none;
+  -webkit-appearance: none;
+  margin-bottom: 0.5rem;
+}
+
+.setting-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.setting-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.setting-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.setting-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-white);
+  border: 2px solid var(--color-gray-light);
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.setting-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.start-room-btn {
+  width: 100%;
+}
+
 .creating-room-message {
   margin-bottom: 2rem;
 }
@@ -88,7 +177,8 @@
 }
 
 .create-room-confirm-btn,
-.continue-btn {
+.continue-btn,
+.start-room-btn {
   width: 100%;
 }
 
@@ -109,6 +199,7 @@
 
   .create-room-confirm-btn,
   .continue-btn,
+  .start-room-btn,
   .cancel-btn {
     flex: 1;
   }
