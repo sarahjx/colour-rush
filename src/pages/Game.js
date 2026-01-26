@@ -104,7 +104,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
       gsap.fromTo(
         flashRef.current,
         { opacity: 0 },
-        { opacity: 0.3, duration: 0.2, yoyo: true, repeat: 1 }
+        { opacity: 0.6, duration: 0.2, yoyo: true, repeat: 1 }
       );
       setTimeout(() => setFlashColor(null), 400);
     }

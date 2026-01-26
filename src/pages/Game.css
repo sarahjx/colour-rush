@@ -21,11 +21,11 @@
 }
 
 .flash-overlay.green {
-  background-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(16, 185, 129, 0.6);
 }
 
 .flash-overlay.red {
-  background-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.6);
 }
 
 .game-header {
