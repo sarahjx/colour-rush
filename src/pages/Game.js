@@ -37,7 +37,14 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const timePerWord = Math.max(minTime, baseTime * speedMultiplier);
 
   useEffect(() => {
-    if (isGameActive && !showRoundEnd && currentRound <= totalRounds) {
+    // Auto-start game when component mounts (after countdown)
+    if (!isGameActive && !showRoundEnd && currentRound <= totalRounds) {
+      startGame();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isGameActive && !showRoundEnd && currentRound <= totalRounds && currentWord === '') {
       startNewWord();
     }
   }, [isGameActive, showRoundEnd]);
