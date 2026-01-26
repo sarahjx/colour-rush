@@ -134,39 +134,28 @@ function Landing({ gameState }) {
           <div className="landing-form">
             <div className="input-group">
               <label htmlFor="nickname" className="input-label">
-                Nickname
+                Nickname & Colour
               </label>
-              <input
-                ref={inputRef}
-                id="nickname"
-                type="text"
-                className="input-field"
-                placeholder="Enter your nickname"
-                value={nickname}
-                onChange={handleNicknameChange}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              />
-            </div>
-            <div className="input-group">
-              <label htmlFor="nickname-colour" className="input-label">
-                Nickname Colour
-              </label>
-              <div className="colour-picker-container">
+              <div className="combined-input-container">
+                <input
+                  ref={inputRef}
+                  id="nickname"
+                  type="text"
+                  className="input-field combined-input"
+                  placeholder="Enter your nickname"
+                  value={nickname}
+                  onChange={handleNicknameChange}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
+                />
                 <input
                   id="nickname-colour"
                   type="color"
-                  className="colour-picker"
+                  className="colour-picker combined-colour"
                   value={nicknameColour}
                   onChange={handleColourChange}
                 />
-                <span className="colour-preview" style={{ color: nicknameColour }}>
-                  {nickname || 'Preview'}
-                </span>
               </div>
-            </div>
-
-            <div className="save-button-container">
               <Button
                 variant="secondary"
                 className="btn-save"
