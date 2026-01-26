@@ -223,6 +223,22 @@
   padding: 1rem 0;
 }
 
+.how-to-play-intro {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.how-to-play-content p {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
 .how-to-play-content h3 {
   font-size: 1.5rem;
   font-weight: 900;
@@ -231,22 +247,27 @@
   color: var(--color-text);
 }
 
-.how-to-play-content h3:first-child {
+.how-to-play-content h3:first-of-type {
   margin-top: 0;
 }
 
 .how-to-play-content ol,
 .how-to-play-content ul {
-  margin: 0;
+  margin: 0 0 1rem 0;
   padding-left: 2rem;
 }
 
 .how-to-play-content li {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
   line-height: 1.6;
   color: var(--color-text);
+}
+
+.how-to-play-content strong {
+  font-weight: 900;
+  color: var(--color-primary);
 }
 
 /* Responsive */

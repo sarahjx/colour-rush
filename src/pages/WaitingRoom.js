@@ -110,20 +110,27 @@ function WaitingRoom({ roomCode, players = [], isHost = false, onStartGame, onLe
         title="How to Play"
       >
         <div className="how-to-play-content">
-          <h3>Game Rules</h3>
-          <ol>
-            <li>Enter your nickname and choose your colour</li>
-            <li>Create a room or join an existing one with a room code</li>
-            <li>Wait for all players to join the waiting room</li>
-            <li>The host starts the game when ready</li>
-            <li>Match the colours as fast as you can!</li>
-          </ol>
-          <h3>Tips</h3>
+          <p className="how-to-play-intro">
+            Color Rush is a fast-paced brain teaser where you race against time and other players!
+          </p>
+          
+          <h3>The Challenge</h3>
+          <p>
+            You'll see a color word (like "RED") displayed in a different color (like blue text).
+          </p>
+
+          <h3>Two Instructions</h3>
+          <p>The game alternates between two commands:</p>
           <ul>
-            <li>Share your room code with friends to play together</li>
-            <li>Adjust game speed and number of rounds before starting</li>
-            <li>Have fun and enjoy the colourful challenge!</li>
+            <li><strong>"Click the WORD!"</strong> → Click what the text says (RED)</li>
+            <li><strong>"Click the COLOR!"</strong> → Click what color the text is (BLUE)</li>
           </ul>
+
+          <h3>Game Speed</h3>
+          <p>
+            Game speed controls how quickly the color words appear and change. 
+            A higher speed means faster gameplay and less time to react, making it more challenging!
+          </p>
         </div>
       </Modal>
     </div>
