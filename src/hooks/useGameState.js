@@ -9,6 +9,10 @@ function useGameState() {
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, playing, finished
   const [scores, setScores] = useState({});
+  const [gameSettings, setGameSettings] = useState({
+    speed: 5, // Default speed (1-10)
+    rounds: 3 // Default number of rounds
+  });
 
   // Functions
   const handleSetNickname = (name) => {
@@ -19,10 +23,13 @@ function useGameState() {
     setNicknameColor(color);
   };
 
-  const createRoom = async () => {
+  const createRoom = async (settings = null) => {
     // Generate a unique room code
     const code = await generateUniqueRoomCode();
     setRoomCode(code);
+    if (settings) {
+      setGameSettings(settings);
+    }
     setPlayers([{ nickname, nicknameColor, id: Date.now(), isHost: true }]);
     setGameStatus('waiting');
     setScores({});
@@ -52,9 +59,11 @@ function useGameState() {
     players,
     gameStatus,
     scores,
+    gameSettings,
     // Functions
     setNickname: handleSetNickname,
     setNicknameColor: handleSetNicknameColor,
+    setGameSettings,
     createRoom,
     joinRoom,
     leaveRoom,
