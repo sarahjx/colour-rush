@@ -24,7 +24,7 @@ function useGameState() {
   const [nicknameColour, setNicknameColour] = useState(savedData.colour);
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
-  const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, playing, finished
+  const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, countdown, playing, finished
   const [scores, setScores] = useState({});
   const [gameSettings, setGameSettings] = useState({
     speed: 5, // Default speed (1-10)
@@ -84,6 +84,19 @@ function useGameState() {
     // TODO: Remove player from room via Firebase
   };
 
+  const startGame = () => {
+    setGameStatus('countdown');
+  };
+
+  const beginPlaying = () => {
+    setGameStatus('playing');
+  };
+
+  const endGame = (finalScore) => {
+    setScores(prev => ({ ...prev, [nickname]: finalScore }));
+    setGameStatus('finished');
+  };
+
   return {
     // State
     nickname,
@@ -101,6 +114,9 @@ function useGameState() {
     createRoom,
     joinRoom,
     leaveRoom,
+    startGame,
+    beginPlaying,
+    endGame,
   };
 }
 
