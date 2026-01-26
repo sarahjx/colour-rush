@@ -1,12 +1,16 @@
 import useGameState from './hooks/useGameState';
 import Landing from './pages/Landing';
 import Room from './pages/Room';
+import WaitingRoom from './pages/WaitingRoom';
 import Button from './components/Button';
 import './App.css';
 
 function App() {
   const gameState = useGameState();
-  const { gameStatus, roomCode, players, leaveRoom } = gameState;
+  const { gameStatus, roomCode, players, nickname, leaveRoom } = gameState;
+  
+  // Determine if current user is host
+  const isHost = players.some(player => player.isHost && player.nickname === nickname);
 
   const handleStartGame = () => {
     // TODO: Implement start game functionality
@@ -23,7 +27,15 @@ function App() {
 
   return (
     <div className="App">
-      {gameStatus === 'waiting' || gameStatus === 'playing' ? (
+      {gameStatus === 'waiting' ? (
+        <WaitingRoom
+          roomCode={roomCode}
+          players={players}
+          isHost={isHost}
+          onStartGame={handleStartGame}
+          onLeaveRoom={handleLeaveRoom}
+        />
+      ) : gameStatus === 'playing' ? (
         <Room
           roomCode={roomCode}
           players={players}
