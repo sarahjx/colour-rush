@@ -12,29 +12,42 @@ const COLOR_VALUES = {
 
 const INSTRUCTIONS = ['WORD', 'COLOR'];
 
-function Game({ gameSettings, onGameEnd }) {
+function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
+  const [wordsAnswered, setWordsAnswered] = useState(0);
   const [currentWord, setCurrentWord] = useState('');
   const [currentColor, setCurrentColor] = useState('');
   const [currentInstruction, setCurrentInstruction] = useState('WORD');
   const [timeLeft, setTimeLeft] = useState(null);
   const [isGameActive, setIsGameActive] = useState(false);
+  const [showRoundEnd, setShowRoundEnd] = useState(false);
+  const [roundScores, setRoundScores] = useState({});
+  const [flashColor, setFlashColor] = useState(null);
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
+  const flashRef = useRef(null);
 
   const speed = gameSettings?.speed || 5;
   const totalRounds = gameSettings?.rounds || 3;
-  const timePerWord = Math.max(1000, 3000 - (speed * 200)); // Faster speed = less time
+  const baseTime = 3000;
+  const minTime = 1000;
+  // Progressive speed: start slower, get faster as more words are answered
+  const speedMultiplier = Math.max(0.3, 1 - (wordsAnswered * 0.05));
+  const timePerWord = Math.max(minTime, baseTime * speedMultiplier);
 
   useEffect(() => {
-    if (isGameActive && currentRound <= totalRounds) {
+    if (isGameActive && !showRoundEnd && currentRound <= totalRounds) {
       startNewWord();
-    } else if (currentRound > totalRounds) {
-      // Game over
-      onGameEnd(score);
     }
-  }, [isGameActive, currentRound]);
+  }, [isGameActive, showRoundEnd]);
+
+  useEffect(() => {
+    if (showRoundEnd && currentRound >= totalRounds) {
+      // All rounds complete
+      onGameEnd(roundScores);
+    }
+  }, [showRoundEnd, currentRound, totalRounds]);
 
   useEffect(() => {
     if (isGameActive && timeLeft !== null && timeLeft > 0) {
@@ -74,17 +87,41 @@ function Game({ gameSettings, onGameEnd }) {
     }
   };
 
-  const handleTimeUp = () => {
-    // Move to next word or round
-    if (currentRound < totalRounds) {
-      setCurrentRound(currentRound + 1);
-    } else {
-      setIsGameActive(false);
+  const showFlash = (color) => {
+    setFlashColor(color);
+    if (flashRef.current) {
+      gsap.fromTo(
+        flashRef.current,
+        { opacity: 0 },
+        { opacity: 0.3, duration: 0.2, yoyo: true, repeat: 1 }
+      );
+      setTimeout(() => setFlashColor(null), 400);
     }
   };
 
+  const handleTimeUp = () => {
+    // Time's up, move to next word
+    setWordsAnswered(prev => prev + 1);
+    // After 10 words, end the round
+    if (wordsAnswered >= 9) {
+      endRound();
+    } else {
+      startNewWord();
+    }
+  };
+
+  const endRound = () => {
+    setIsGameActive(false);
+    setShowRoundEnd(true);
+    // Save score for this round
+    setRoundScores(prev => ({
+      ...prev,
+      [`round${currentRound}`]: score
+    }));
+  };
+
   const handleColorClick = (clickedColor) => {
-    if (!isGameActive || timeLeft === null) return;
+    if (!isGameActive || timeLeft === null || showRoundEnd) return;
 
     let isCorrect = false;
     if (currentInstruction === 'WORD') {
@@ -97,28 +134,52 @@ function Game({ gameSettings, onGameEnd }) {
 
     if (isCorrect) {
       setScore(score + 1);
-      // Move to next word
-      startNewWord();
+      showFlash('green');
     } else {
-      // Wrong answer, move to next word anyway
+      showFlash('red');
+    }
+
+    setWordsAnswered(prev => prev + 1);
+    
+    // After 10 words, end the round
+    if (wordsAnswered >= 9) {
+      endRound();
+    } else {
+      // Move to next word
       startNewWord();
     }
   };
 
   const startGame = () => {
     setIsGameActive(true);
-    setCurrentRound(1);
+    setShowRoundEnd(false);
     setScore(0);
+    setWordsAnswered(0);
+  };
+
+  const startNextRound = () => {
+    if (currentRound < totalRounds) {
+      setCurrentRound(currentRound + 1);
+      setScore(0);
+      setWordsAnswered(0);
+      setIsGameActive(true);
+      setShowRoundEnd(false);
+    }
   };
 
   return (
     <div className="game">
+      <div 
+        ref={flashRef}
+        className={`flash-overlay ${flashColor || ''}`}
+      />
+      
       <div className="game-header">
         <div className="game-info">
           <div className="round-info">Round {currentRound} / {totalRounds}</div>
           <div className="score-info">Score: {score}</div>
         </div>
-        {timeLeft !== null && isGameActive && (
+        {timeLeft !== null && isGameActive && !showRoundEnd && (
           <div className="timer-bar">
             <div 
               className="timer-fill" 
@@ -129,7 +190,53 @@ function Game({ gameSettings, onGameEnd }) {
       </div>
 
       <div className="game-content">
-        {!isGameActive ? (
+        {showRoundEnd ? (
+          <div className="round-end">
+            <h2 className="round-end-title">Round {currentRound} Complete!</h2>
+            <div className="leaderboard">
+              <h3 className="leaderboard-title">Scores</h3>
+              <div className="leaderboard-list">
+                {players && players.length > 0 ? (
+                  players.map((player) => (
+                    <div key={player.id} className="leaderboard-item">
+                      <span 
+                        className="leaderboard-nickname"
+                        style={{ color: player.nicknameColour || '#ef4444' }}
+                      >
+                        {player.nickname}
+                      </span>
+                      <span className="leaderboard-score">
+                        {roundScores[`round${currentRound}`] || 0}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="leaderboard-item">
+                    <span className="leaderboard-nickname">You</span>
+                    <span className="leaderboard-score">{score}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            {currentRound < totalRounds ? (
+              <Button
+                variant="primary"
+                className="next-round-btn"
+                onClick={startNextRound}
+              >
+                Start Round {currentRound + 1}
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                className="next-round-btn"
+                onClick={() => onGameEnd(roundScores)}
+              >
+                View Final Results
+              </Button>
+            )}
+          </div>
+        ) : !isGameActive ? (
           <div className="game-start">
             <h2 className="game-title">Ready to Play?</h2>
             <Button

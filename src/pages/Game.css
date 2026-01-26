@@ -4,6 +4,28 @@
   flex-direction: column;
   padding: 2rem 1rem;
   background: var(--color-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.flash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.flash-overlay.green {
+  background-color: rgba(16, 185, 129, 0.3);
+}
+
+.flash-overlay.red {
+  background-color: rgba(239, 68, 68, 0.3);
 }
 
 .game-header {
@@ -145,5 +167,96 @@
     min-width: 120px;
     padding: 1rem 1.5rem;
     font-size: 1.25rem;
+  }
+}
+
+.round-end {
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.round-end-title {
+  font-size: 3rem;
+  font-weight: 900;
+  font-family: 'Slackey', sans-serif;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.leaderboard {
+  background: var(--color-white);
+  border-radius: 2rem;
+  padding: 2rem;
+  border: 4px solid var(--color-black);
+  box-shadow: 
+    0 8px 0 rgba(0, 0, 0, 0.15),
+    0 12px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.leaderboard-title {
+  font-size: 2rem;
+  font-weight: 900;
+  font-family: 'Slackey', sans-serif;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.leaderboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--color-gray-light);
+  border-radius: 1rem;
+  border: 3px solid var(--color-black);
+}
+
+.leaderboard-nickname {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: 'Slackey', sans-serif;
+}
+
+.leaderboard-score {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-family: 'Outfit', sans-serif;
+  color: var(--color-primary);
+}
+
+.next-round-btn {
+  font-size: 2rem;
+  padding: 1.5rem 4rem;
+  font-weight: 900;
+}
+
+@media (max-width: 640px) {
+  .round-end-title {
+    font-size: 2rem;
+  }
+
+  .leaderboard-title {
+    font-size: 1.5rem;
+  }
+
+  .leaderboard-nickname,
+  .leaderboard-score {
+    font-size: 1.25rem;
+  }
+
+  .next-round-btn {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
   }
 }

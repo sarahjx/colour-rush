@@ -42,6 +42,8 @@ function App() {
       ) : gameStatus === 'playing' ? (
         <Game 
           gameSettings={gameSettings}
+          players={players}
+          onRoundEnd={endGame}
           onGameEnd={endGame}
         />
       ) : gameStatus === 'finished' ? (
