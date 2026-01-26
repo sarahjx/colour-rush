@@ -111,10 +111,10 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd }) {
   };
 
   const handleTimeUp = () => {
-    // Time's up - flash red
+    // Time's up - counts as wrong answer (no score increase, flash red)
     showFlash('red');
     
-    // Move to next word after flash
+    // Move to next word after flash (score stays the same - wrong answer)
     setTimeout(() => {
       setWordsAnswered(prev => prev + 1);
       // After 10 words, end the round
