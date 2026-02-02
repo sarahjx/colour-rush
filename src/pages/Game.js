@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { gsap } from 'gsap';
 import Button from '../components/Button';
 import './Game.css';
@@ -101,13 +101,14 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     if (!isGameActive && !showRoundEnd && currentRound <= totalRounds) {
       startGame();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (isGameActive && !showRoundEnd && currentRound <= totalRounds && currentWord === '') {
       startNewWord();
     }
-  }, [isGameActive, showRoundEnd]);
+  }, [isGameActive, showRoundEnd, currentRound, currentWord, totalRounds, startNewWord]);
 
   // Round timer countdown
   useEffect(() => {
@@ -124,7 +125,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       }, 100);
       return () => clearInterval(timer);
     }
-  }, [isGameActive, roundTimeLeft]);
+  }, [isGameActive, roundTimeLeft, endRound]);
 
   // Button display toggle based on difficulty (words vs colored squares)
   useEffect(() => {
@@ -163,7 +164,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       // All rounds complete
       onGameEnd(playerScores);
     }
-  }, [showRoundEnd, currentRound, totalRounds]);
+  }, [showRoundEnd, currentRound, totalRounds, onGameEnd, playerScores]);
 
   // Word timer countdown
   useEffect(() => {
@@ -186,9 +187,9 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     if (isGameActive && timeLeft === 0 && !showRoundEnd && roundTimeLeft > 0) {
       handleTimeUp();
     }
-  }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft]);
+  }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft, handleTimeUp]);
 
-  const startNewWord = () => {
+  const startNewWord = useCallback(() => {
     // Don't start new word if round time is up
     if (roundTimeLeft <= 0) {
       return;
@@ -218,9 +219,9 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
       );
     }
-  };
+  }, [roundTimeLeft, timePerWord]);
 
-  const showFlash = (color) => {
+  const showFlash = useCallback((color) => {
     setFlashColor(color);
     if (flashRef.current) {
       gsap.fromTo(
@@ -230,9 +231,9 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       );
       setTimeout(() => setFlashColor(null), 400);
     }
-  };
+  }, []);
 
-  const handleTimeUp = () => {
+  const handleTimeUp = useCallback(() => {
     // Prevent multiple calls using ref
     if (handleTimeUpRef.current) return;
     handleTimeUpRef.current = true;
@@ -250,36 +251,39 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
         handleTimeUpRef.current = false; // Reset flag
       }
     }, 400);
-  };
+  }, [roundTimeLeft, isGameActive, showRoundEnd, startNewWord, showFlash]);
 
-  const endRound = () => {
+  const endRound = useCallback(() => {
     setIsGameActive(false);
     setShowRoundEnd(true);
     // Add current round score to total score
-    const newTotalScore = totalScore + score;
-    setTotalScore(newTotalScore);
-    
-    // Update player scores (for multiplayer, this would sync with other players)
-    // For now, just track the current player's score
-    setPlayerScores(prev => {
-      const updated = { ...prev };
-      if (players && players.length > 0) {
-        players.forEach(player => {
-          if (!updated[player.id]) {
-            updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
-          }
-          // For now, only update current player's score
-          // In multiplayer, this would be synced via Firebase
-          if (player.nickname === 'You' || true) {
-            updated[player.id].totalScore = newTotalScore;
-          }
-        });
-      } else {
-        updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
-      }
-      return updated;
+    setTotalScore(prev => {
+      const newTotalScore = prev + score;
+      
+      // Update player scores (for multiplayer, this would sync with other players)
+      // For now, just track the current player's score
+      setPlayerScores(prevScores => {
+        const updated = { ...prevScores };
+        if (players && players.length > 0) {
+          players.forEach(player => {
+            if (!updated[player.id]) {
+              updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
+            }
+            // For now, only update current player's score
+            // In multiplayer, this would be synced via Firebase
+            if (player.nickname === 'You' || true) {
+              updated[player.id].totalScore = newTotalScore;
+            }
+          });
+        } else {
+          updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
+        }
+        return updated;
+      });
+      
+      return newTotalScore;
     });
-  };
+  }, [score, players]);
 
   const handleColorClick = (clickedColor) => {
     if (!isGameActive || timeLeft === null || showRoundEnd || roundTimeLeft <= 0) return;
