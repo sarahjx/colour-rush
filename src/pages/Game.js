@@ -96,6 +96,115 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   // Apply difficulty and progressive multipliers
   const timePerWord = Math.max(minTime, baseTime * progressiveMultiplier);
 
+  // Define functions before they're used in useEffect hooks
+  const showFlash = useCallback((color) => {
+    setFlashColor(color);
+    if (flashRef.current) {
+      gsap.fromTo(
+        flashRef.current,
+        { opacity: 0 },
+        { opacity: 0.6, duration: 0.2, yoyo: true, repeat: 1 }
+      );
+      setTimeout(() => setFlashColor(null), 400);
+    }
+  }, []);
+
+  const startNewWord = useCallback(() => {
+    // Don't start new word if round time is up
+    if (roundTimeLeft <= 0) {
+      return;
+    }
+
+    // Pick random word and color (different from word)
+    const word = COLORS[Math.floor(Math.random() * COLORS.length)];
+    let color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    while (color === word) {
+      color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    }
+
+    // Alternate instruction type
+    const instruction = INSTRUCTIONS[Math.floor(Math.random() * INSTRUCTIONS.length)];
+
+    setCurrentWord(word);
+    setCurrentColor(color);
+    setCurrentInstruction(instruction);
+    setTimeLeft(timePerWord);
+    handleTimeUpRef.current = false; // Reset time up flag when starting new word
+
+    // Animate word appearance
+    if (wordRef.current) {
+      gsap.fromTo(
+        wordRef.current,
+        { opacity: 0, scale: 0.5 },
+        { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
+      );
+    }
+  }, [roundTimeLeft, timePerWord]);
+
+  const handleTimeUp = useCallback(() => {
+    // Prevent multiple calls using ref
+    if (handleTimeUpRef.current) return;
+    handleTimeUpRef.current = true;
+    
+    // Time's up - counts as wrong answer (no score increase, flash red)
+    showFlash('red');
+    
+    // Move to next word after flash (score stays the same - wrong answer)
+    setTimeout(() => {
+      if (roundTimeLeft > 0 && isGameActive && !showRoundEnd) {
+        setWordsAnswered(prev => prev + 1);
+        handleTimeUpRef.current = false; // Reset flag
+        startNewWord();
+      } else {
+        handleTimeUpRef.current = false; // Reset flag
+      }
+    }, 400);
+  }, [roundTimeLeft, isGameActive, showRoundEnd, startNewWord, showFlash]);
+
+  const endRound = useCallback(() => {
+    setIsGameActive(false);
+    setShowRoundEnd(true);
+    // Add current round score to total score
+    setTotalScore(prev => {
+      const newTotalScore = prev + score;
+      
+      // Update player scores (for multiplayer, this would sync with other players)
+      // For now, just track the current player's score
+      setPlayerScores(prevScores => {
+        const updated = { ...prevScores };
+        if (players && players.length > 0) {
+          players.forEach(player => {
+            if (!updated[player.id]) {
+              updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
+            }
+            // For now, only update current player's score
+            // In multiplayer, this would be synced via Firebase
+            if (player.nickname === 'You' || true) {
+              updated[player.id].totalScore = newTotalScore;
+            }
+          });
+        } else {
+          updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
+        }
+        return updated;
+      });
+      
+      return newTotalScore;
+    });
+  }, [score, players]);
+
+  const startGame = () => {
+    setIsGameActive(true);
+    setShowRoundEnd(false);
+    setScore(0);
+    setWordsAnswered(0);
+    setCurrentWord('');
+    setCurrentColor('');
+    setTimeLeft(null);
+    setRoundTimeLeft(totalRoundTime); // Start round timer
+    setShowButtonText(true); // Start with words
+  };
+
   useEffect(() => {
     // Auto-start game when component mounts (after countdown)
     if (!isGameActive && !showRoundEnd && currentRound <= totalRounds) {
@@ -189,102 +298,6 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     }
   }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft, handleTimeUp]);
 
-  const startNewWord = useCallback(() => {
-    // Don't start new word if round time is up
-    if (roundTimeLeft <= 0) {
-      return;
-    }
-
-    // Pick random word and color (different from word)
-    const word = COLORS[Math.floor(Math.random() * COLORS.length)];
-    let color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    while (color === word) {
-      color = COLORS[Math.floor(Math.random() * COLORS.length)];
-    }
-
-    // Alternate instruction type
-    const instruction = INSTRUCTIONS[Math.floor(Math.random() * INSTRUCTIONS.length)];
-
-    setCurrentWord(word);
-    setCurrentColor(color);
-    setCurrentInstruction(instruction);
-    setTimeLeft(timePerWord);
-    handleTimeUpRef.current = false; // Reset time up flag when starting new word
-
-    // Animate word appearance
-    if (wordRef.current) {
-      gsap.fromTo(
-        wordRef.current,
-        { opacity: 0, scale: 0.5 },
-        { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
-      );
-    }
-  }, [roundTimeLeft, timePerWord]);
-
-  const showFlash = useCallback((color) => {
-    setFlashColor(color);
-    if (flashRef.current) {
-      gsap.fromTo(
-        flashRef.current,
-        { opacity: 0 },
-        { opacity: 0.6, duration: 0.2, yoyo: true, repeat: 1 }
-      );
-      setTimeout(() => setFlashColor(null), 400);
-    }
-  }, []);
-
-  const handleTimeUp = useCallback(() => {
-    // Prevent multiple calls using ref
-    if (handleTimeUpRef.current) return;
-    handleTimeUpRef.current = true;
-    
-    // Time's up - counts as wrong answer (no score increase, flash red)
-    showFlash('red');
-    
-    // Move to next word after flash (score stays the same - wrong answer)
-    setTimeout(() => {
-      if (roundTimeLeft > 0 && isGameActive && !showRoundEnd) {
-        setWordsAnswered(prev => prev + 1);
-        handleTimeUpRef.current = false; // Reset flag
-        startNewWord();
-      } else {
-        handleTimeUpRef.current = false; // Reset flag
-      }
-    }, 400);
-  }, [roundTimeLeft, isGameActive, showRoundEnd, startNewWord, showFlash]);
-
-  const endRound = useCallback(() => {
-    setIsGameActive(false);
-    setShowRoundEnd(true);
-    // Add current round score to total score
-    setTotalScore(prev => {
-      const newTotalScore = prev + score;
-      
-      // Update player scores (for multiplayer, this would sync with other players)
-      // For now, just track the current player's score
-      setPlayerScores(prevScores => {
-        const updated = { ...prevScores };
-        if (players && players.length > 0) {
-          players.forEach(player => {
-            if (!updated[player.id]) {
-              updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
-            }
-            // For now, only update current player's score
-            // In multiplayer, this would be synced via Firebase
-            if (player.nickname === 'You' || true) {
-              updated[player.id].totalScore = newTotalScore;
-            }
-          });
-        } else {
-          updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
-        }
-        return updated;
-      });
-      
-      return newTotalScore;
-    });
-  }, [score, players]);
-
   const handleColorClick = (clickedColor) => {
     if (!isGameActive || timeLeft === null || showRoundEnd || roundTimeLeft <= 0) return;
 
@@ -310,18 +323,6 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
     if (roundTimeLeft > 0) {
       startNewWord();
     }
-  };
-
-  const startGame = () => {
-    setIsGameActive(true);
-    setShowRoundEnd(false);
-    setScore(0);
-    setWordsAnswered(0);
-    setCurrentWord('');
-    setCurrentColor('');
-    setTimeLeft(null);
-    setRoundTimeLeft(totalRoundTime); // Start round timer
-    setShowButtonText(true); // Start with words
   };
 
   const startNextRound = () => {
