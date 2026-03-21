@@ -35,9 +35,10 @@ function App() {
 
   const handleEndGame = async (finalScores) => {
     try {
-      await endGame(finalScores);
+      return await endGame(finalScores);
     } catch (error) {
       alert(error.message || 'Unable to submit score.');
+      throw error;
     }
   };
 

@@ -237,10 +237,16 @@ io.on('connection', (socket) => {
       nicknameColour: player.nicknameColour,
       totalScore: Number(score?.totalScore || 0),
     };
-    room.gameStatus = 'finished';
-    room.isPaused = false;
+    const submittedCount = Object.keys(room.scores).length;
+    const totalPlayers = room.players.length;
+    const allSubmitted = submittedCount >= totalPlayers;
 
-    ack({ ok: true });
+    if (allSubmitted) {
+      room.gameStatus = 'finished';
+      room.isPaused = false;
+    }
+
+    ack({ ok: true, submittedCount, totalPlayers, allSubmitted });
     emitRoomState(normalizedCode);
   });
 

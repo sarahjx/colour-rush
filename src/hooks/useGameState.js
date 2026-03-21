@@ -262,6 +262,8 @@ function useGameState() {
     if (!response?.ok) {
       throw new Error(response?.error || 'Unable to submit score.');
     }
+
+    return response;
   };
 
   const togglePauseGame = async (paused) => {

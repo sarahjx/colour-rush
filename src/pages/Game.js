@@ -24,6 +24,8 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
   const [roundTimeLeft, setRoundTimeLeft] = useState(null); // Total time for the round
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
+  const [hasSubmittedFinalScore, setHasSubmittedFinalScore] = useState(false);
+  const [isSubmittingFinalScore, setIsSubmittingFinalScore] = useState(false);
   const [flashColor, setFlashColor] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState({ type: '', text: '' });
   const [showButtonText, setShowButtonText] = useState(true); // Track whether to show words or just colored squares
@@ -436,12 +438,28 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
                 <Button
                   variant="primary"
                   className="play-again-btn"
-                  onClick={() => {
-                    onGameEnd({ totalScore });
+                  disabled={hasSubmittedFinalScore || isSubmittingFinalScore}
+                  onClick={async () => {
+                    if (hasSubmittedFinalScore || isSubmittingFinalScore) return;
+
+                    setIsSubmittingFinalScore(true);
+                    try {
+                      await onGameEnd({ totalScore });
+                      setHasSubmittedFinalScore(true);
+                    } finally {
+                      setIsSubmittingFinalScore(false);
+                    }
                   }}
                 >
-                  View Final Results
+                  {isSubmittingFinalScore
+                    ? 'Submitting Score...'
+                    : hasSubmittedFinalScore
+                      ? 'Score Submitted'
+                      : 'View Final Results'}
                 </Button>
+                {hasSubmittedFinalScore && (
+                  <p className="waiting-for-scores-text">Waiting for other players to submit...</p>
+                )}
               </>
             )}
           </div>
