@@ -115,6 +115,37 @@
   margin-bottom: 2rem;
 }
 
+.answer-feedback {
+  min-height: 3rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.9rem;
+  border: 3px solid transparent;
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-family: 'Slackey', sans-serif;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.answer-feedback.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.answer-feedback.correct {
+  color: #065f46;
+  background-color: #d1fae5;
+  border-color: #10b981;
+}
+
+.answer-feedback.wrong {
+  color: #7f1d1d;
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+
 .color-word {
   font-size: 8rem;
   font-weight: 900;
@@ -180,6 +211,11 @@
 
   .instruction {
     font-size: 1.75rem;
+  }
+
+  .answer-feedback {
+    font-size: 1.2rem;
+    min-height: 2.5rem;
   }
 
   .color-word {

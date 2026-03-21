@@ -25,12 +25,15 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
   const [flashColor, setFlashColor] = useState(null);
+  const [answerFeedback, setAnswerFeedback] = useState({ type: '', text: '' });
   const [showButtonText, setShowButtonText] = useState(true); // Track whether to show words or just colored squares
   const wordRef = useRef(null);
   const instructionRef = useRef(null);
   const flashRef = useRef(null);
+  const feedbackRef = useRef(null);
   const buttonShuffleIntervalRef = useRef(null);
   const handleTimeUpRef = useRef(false);
+  const feedbackTimerRef = useRef(null);
 
   const difficulty = gameSettings?.difficulty || 'normal';
   const totalRounds = gameSettings?.rounds || 3;
@@ -108,6 +111,26 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
     }
   }, []);
 
+  const showAnswerFeedback = useCallback((type, text) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+
+    setAnswerFeedback({ type, text });
+
+    if (feedbackRef.current) {
+      gsap.fromTo(
+        feedbackRef.current,
+        { opacity: 0, y: 8, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: 'power2.out' }
+      );
+    }
+
+    feedbackTimerRef.current = setTimeout(() => {
+      setAnswerFeedback({ type: '', text: '' });
+    }, 500);
+  }, []);
+
   const startNewWord = useCallback(() => {
     // Don't start new word if round time is up
     if (roundTimeLeft <= 0) {
@@ -145,8 +168,9 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
     if (handleTimeUpRef.current) return;
     handleTimeUpRef.current = true;
     
-    // Time's up - counts as wrong answer (no score increase, flash red)
+    // Time's up counts as a miss.
     showFlash('red');
+    showAnswerFeedback('wrong', 'Too Slow!');
     
     // Move to next word after flash (score stays the same - wrong answer)
     setTimeout(() => {
@@ -158,7 +182,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
         handleTimeUpRef.current = false; // Reset flag
       }
     }, 400);
-  }, [roundTimeLeft, isGameActive, showRoundEnd, startNewWord, showFlash]);
+  }, [roundTimeLeft, isGameActive, showRoundEnd, startNewWord, showFlash, showAnswerFeedback]);
 
   const endRound = useCallback(() => {
     setIsGameActive(false);
@@ -192,6 +216,14 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
       startNewWord();
     }
   }, [isGameActive, showRoundEnd, currentRound, currentWord, totalRounds, startNewWord]);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
 
   // Round timer countdown
   useEffect(() => {
@@ -280,8 +312,10 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
     if (isCorrect) {
       setScore(score + 1);
       showFlash('green');
+      showAnswerFeedback('correct', 'Correct!');
     } else {
       showFlash('red');
+      showAnswerFeedback('wrong', 'Wrong!');
     }
 
     setWordsAnswered(prev => prev + 1);
@@ -414,6 +448,13 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
               className="instruction"
             >
               {instructionText}
+            </div>
+            <div
+              ref={feedbackRef}
+              className={`answer-feedback ${answerFeedback.type ? `show ${answerFeedback.type}` : ''}`}
+              aria-live="polite"
+            >
+              {answerFeedback.text}
             </div>
             <div 
               ref={wordRef}
