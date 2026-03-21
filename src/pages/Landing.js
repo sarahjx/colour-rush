@@ -226,8 +226,8 @@ function Landing({ gameState }) {
           <h3>Two Instructions</h3>
           <p>The game alternates between two commands:</p>
           <ul>
-            <li><strong>"Match the WORD"</strong> → Tap the button with the same word text (example: text says RED, tap RED)</li>
-            <li><strong>"Match the COLOR"</strong> → Tap the button matching the ink color (example: text is blue, tap BLUE)</li>
+            <li><strong>"Match THE WORD"</strong> → Tap the button with the same word text (example: text says RED, tap RED)</li>
+            <li><strong>"Match THE COLOUR"</strong> → Tap the button matching the text colour (example: text is blue, tap BLUE)</li>
           </ul>
 
           <h3>Difficulty Levels</h3>

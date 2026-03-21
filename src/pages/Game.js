@@ -327,8 +327,8 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
   };
 
   const instructionText = currentInstruction === 'WORD'
-    ? 'Match the WORD text'
-    : 'Match the TEXT color';
+    ? 'Match THE WORD'
+    : 'Match THE COLOUR';
 
   const startNextRound = () => {
     if (currentRound < totalRounds) {
