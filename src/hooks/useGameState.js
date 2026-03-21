@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { generateUniqueRoomCode } from '../utils/roomCodeGenerator';
 import { connectSocket, emitWithAck } from '../services/socketClient';
 
@@ -52,6 +52,7 @@ function useGameState() {
     rounds: 3 // Default number of rounds
   });
   const playerIdRef = useRef(savedData.playerId);
+  const roomSyncIntervalRef = useRef(null);
 
   // Save profile fields to local storage.
   const saveToStorage = (name, colour) => {
@@ -63,7 +64,7 @@ function useGameState() {
     }
   };
 
-  const applyRoomState = (room) => {
+  const applyRoomState = useCallback((room) => {
     if (!room) return;
     setRoomCode(room.roomCode || '');
     setPlayers(room.players || []);
@@ -71,7 +72,23 @@ function useGameState() {
     setGameStatus(room.gameStatus || 'idle');
     setIsPaused(Boolean(room.isPaused));
     setPlayerScores(room.scores || {});
-  };
+  }, []);
+
+  const syncRoomState = useCallback(async (codeToSync = roomCode) => {
+    if (!codeToSync) return;
+
+    try {
+      const response = await emitWithAck('get_room_state', {
+        roomCode: codeToSync,
+      });
+      if (response?.ok && response.room) {
+        applyRoomState(response.room);
+      }
+    } catch (error) {
+      // Keep polling soft-failure only; realtime events may still arrive.
+      console.debug('Room sync skipped:', error.message);
+    }
+  }, [applyRoomState, roomCode]);
 
   useEffect(() => {
     const socket = connectSocket();
@@ -84,7 +101,7 @@ function useGameState() {
     return () => {
       socket.off('room_state', handleRoomState);
     };
-  }, []);
+  }, [applyRoomState]);
 
   const currentPlayer = () => ({
     id: playerIdRef.current,
@@ -121,6 +138,7 @@ function useGameState() {
 
       if (response?.ok) {
         applyRoomState(response.room);
+        await syncRoomState(response.room?.roomCode || code);
         setScores({});
         return code;
       }
@@ -149,6 +167,7 @@ function useGameState() {
     }
 
     applyRoomState(response.room);
+    await syncRoomState(response.room?.roomCode || code.toUpperCase());
     setScores({});
   };
 
@@ -271,6 +290,29 @@ function useGameState() {
   useEffect(() => {
     playerIdRef.current = playerId;
   }, [playerId]);
+
+  useEffect(() => {
+    if (!roomCode) {
+      if (roomSyncIntervalRef.current) {
+        clearInterval(roomSyncIntervalRef.current);
+        roomSyncIntervalRef.current = null;
+      }
+      return;
+    }
+
+    // Snapshot sync avoids stale player lists if a socket event is missed.
+    syncRoomState(roomCode);
+    roomSyncIntervalRef.current = setInterval(() => {
+      syncRoomState(roomCode);
+    }, 1500);
+
+    return () => {
+      if (roomSyncIntervalRef.current) {
+        clearInterval(roomSyncIntervalRef.current);
+        roomSyncIntervalRef.current = null;
+      }
+    };
+  }, [roomCode, syncRoomState]);
 
   return {
     // State.

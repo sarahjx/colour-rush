@@ -207,6 +207,17 @@ io.on('connection', (socket) => {
     emitRoomState(normalizedCode);
   });
 
+  socket.on('get_room_state', ({ roomCode }, ack = () => {}) => {
+    const normalizedCode = (roomCode || '').toUpperCase();
+    const room = rooms.get(normalizedCode);
+    if (!room) {
+      ack({ ok: false, error: 'Room not found.' });
+      return;
+    }
+
+    ack({ ok: true, room: serializeRoom(room) });
+  });
+
   socket.on('submit_score', ({ roomCode, playerId, score }, ack = () => {}) => {
     const normalizedCode = (roomCode || '').toUpperCase();
     const room = rooms.get(normalizedCode);
