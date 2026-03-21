@@ -12,7 +12,7 @@ const COLOR_VALUES = {
 
 const INSTRUCTIONS = ['WORD', 'COLOR'];
 
-function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
+function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogglePause, onGameEnd }) {
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
   const [totalScore, setTotalScore] = useState(0); // Cumulative score across all rounds
@@ -227,7 +227,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
 
   // Round timer countdown
   useEffect(() => {
-    if (isGameActive && roundTimeLeft !== null && roundTimeLeft > 0) {
+    if (isGameActive && !isPaused && roundTimeLeft !== null && roundTimeLeft > 0) {
       const timer = setInterval(() => {
         setRoundTimeLeft(prev => {
           if (prev <= 100) {
@@ -240,7 +240,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
       }, 100);
       return () => clearInterval(timer);
     }
-  }, [isGameActive, roundTimeLeft, endRound]);
+  }, [isGameActive, isPaused, roundTimeLeft, endRound]);
 
   // Button display toggle based on difficulty (words vs colored squares)
   useEffect(() => {
@@ -250,7 +250,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
       buttonShuffleIntervalRef.current = null;
     }
 
-    if (isGameActive && shouldToggleButtonDisplay && buttonToggleInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
+    if (isGameActive && !isPaused && shouldToggleButtonDisplay && buttonToggleInterval && roundTimeLeft !== null && roundTimeLeft > 0 && !showRoundEnd) {
       // Toggle between words and colored squares at difficulty-based intervals
       buttonShuffleIntervalRef.current = setInterval(() => {
         setShowButtonText(prev => {
@@ -272,11 +272,11 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
         buttonShuffleIntervalRef.current = null;
       }
     };
-  }, [isGameActive, shouldToggleButtonDisplay, buttonToggleInterval, roundTimeLeft, showRoundEnd]);
+  }, [isGameActive, isPaused, shouldToggleButtonDisplay, buttonToggleInterval, roundTimeLeft, showRoundEnd]);
 
   // Word timer countdown
   useEffect(() => {
-    if (isGameActive && !showRoundEnd && timeLeft !== null && timeLeft > 0 && roundTimeLeft > 0) {
+    if (isGameActive && !isPaused && !showRoundEnd && timeLeft !== null && timeLeft > 0 && roundTimeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 100) {
@@ -288,17 +288,17 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
       }, 100);
       return () => clearInterval(timer);
     }
-  }, [isGameActive, timeLeft, showRoundEnd, roundTimeLeft]);
+  }, [isGameActive, isPaused, timeLeft, showRoundEnd, roundTimeLeft]);
 
   // Handle time up separately to prevent multiple triggers
   useEffect(() => {
-    if (isGameActive && timeLeft === 0 && !showRoundEnd && roundTimeLeft > 0) {
+    if (isGameActive && !isPaused && timeLeft === 0 && !showRoundEnd && roundTimeLeft > 0) {
       handleTimeUp();
     }
-  }, [timeLeft, isGameActive, showRoundEnd, roundTimeLeft, handleTimeUp]);
+  }, [timeLeft, isGameActive, isPaused, showRoundEnd, roundTimeLeft, handleTimeUp]);
 
   const handleColorClick = (clickedColor) => {
-    if (!isGameActive || timeLeft === null || showRoundEnd || roundTimeLeft <= 0) return;
+    if (!isGameActive || isPaused || timeLeft === null || showRoundEnd || roundTimeLeft <= 0) return;
 
     let isCorrect = false;
     if (currentInstruction === 'WORD') {
@@ -365,6 +365,21 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
               <span className="round-timer"> {Math.ceil(roundTimeLeft / 1000)}s</span>
             )}
           </div>
+          {isGameActive && !showRoundEnd && (
+            <div className="pause-controls">
+              {isHost ? (
+                <Button
+                  variant="secondary"
+                  className="pause-game-btn"
+                  onClick={() => onTogglePause(!isPaused)}
+                >
+                  {isPaused ? 'Resume' : 'Pause'}
+                </Button>
+              ) : isPaused ? (
+                <span className="paused-badge">Paused by Host</span>
+              ) : null}
+            </div>
+          )}
         </div>
         {timeLeft !== null && isGameActive && !showRoundEnd && roundTimeLeft > 0 && (
           <div className="timer-bar">
@@ -443,6 +458,12 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
           </div>
         ) : (
           <>
+            {isPaused && (
+              <div className="pause-overlay">
+                <h3>Game Paused</h3>
+                <p>{isHost ? 'Press Resume when everyone is ready.' : 'Waiting for host to resume.'}</p>
+              </div>
+            )}
             <div 
               ref={instructionRef}
               className="instruction"
@@ -468,6 +489,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
                 <button
                   key={color}
                   className="color-button"
+                  disabled={isPaused}
                   onClick={() => handleColorClick(color)}
                   style={{ 
                     backgroundColor: COLOR_VALUES[color],

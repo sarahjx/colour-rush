@@ -44,6 +44,7 @@ function useGameState() {
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, countdown, playing, finished
+  const [isPaused, setIsPaused] = useState(false);
   const [scores, setScores] = useState({});
   const [playerScores, setPlayerScores] = useState({}); // Final player scores from game
   const [gameSettings, setGameSettings] = useState({
@@ -68,6 +69,7 @@ function useGameState() {
     setPlayers(room.players || []);
     setGameSettings(room.gameSettings || { difficulty: 'normal', rounds: 3 });
     setGameStatus(room.gameStatus || 'idle');
+    setIsPaused(Boolean(room.isPaused));
     setPlayerScores(room.scores || {});
   };
 
@@ -165,6 +167,7 @@ function useGameState() {
     setRoomCode('');
     setPlayers([]);
     setGameStatus('idle');
+    setIsPaused(false);
     setScores({});
     setPlayerScores({});
   };
@@ -242,6 +245,18 @@ function useGameState() {
     }
   };
 
+  const togglePauseGame = async (paused) => {
+    const response = await emitWithAck('toggle_pause', {
+      roomCode,
+      playerId: playerIdRef.current,
+      paused,
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to pause game.');
+    }
+  };
+
   useEffect(() => {
     if (!playerScores[playerIdRef.current]) {
       return;
@@ -265,6 +280,7 @@ function useGameState() {
     roomCode,
     players,
     gameStatus,
+    isPaused,
     scores,
     playerScores,
     gameSettings,
@@ -294,6 +310,7 @@ function useGameState() {
     returnToWaitingRoom,
     startGame,
     beginPlaying,
+    togglePauseGame,
     endGame,
   };
 }

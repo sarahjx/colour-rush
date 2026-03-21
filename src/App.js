@@ -8,10 +8,10 @@ import './App.css';
 
 function App() {
   const gameState = useGameState();
-  const { gameStatus, roomCode, players, nickname, playerId, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, endGame } = gameState;
+  const { gameStatus, roomCode, players, playerId, isPaused, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, togglePauseGame, endGame } = gameState;
   
-  // Determine if current user is host
-  const isHost = players.some(player => player.isHost && player.nickname === nickname);
+  // Determine if current user is host.
+  const isHost = players.some((player) => player.isHost && player.id === playerId);
 
   const handleStartGame = async () => {
     try {
@@ -45,6 +45,14 @@ function App() {
     }
   };
 
+  const handleTogglePause = async (paused) => {
+    try {
+      await togglePauseGame(paused);
+    } catch (error) {
+      alert(error.message || 'Unable to pause game.');
+    }
+  };
+
   return (
     <div className="App">
       {gameStatus === 'waiting' ? (
@@ -65,6 +73,9 @@ function App() {
           gameSettings={gameSettings}
           players={players}
           currentPlayerId={playerId}
+          isHost={isHost}
+          isPaused={isPaused}
+          onTogglePause={handleTogglePause}
           onGameEnd={handleEndGame}
         />
       ) : gameStatus === 'finished' ? (

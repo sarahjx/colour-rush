@@ -30,6 +30,7 @@ function serializeRoom(room) {
   return {
     roomCode: room.roomCode,
     gameStatus: room.gameStatus,
+    isPaused: Boolean(room.isPaused),
     gameSettings: room.gameSettings,
     players: room.players,
     scores: room.scores,
@@ -46,6 +47,7 @@ function createRoomState({ roomCode, hostPlayer, settings }) {
   return {
     roomCode,
     gameStatus: 'waiting',
+    isPaused: false,
     gameSettings: sanitizeSettings(settings),
     players: [{ ...hostPlayer, isHost: true }],
     scores: {},
@@ -164,7 +166,30 @@ io.on('connection', (socket) => {
     }
 
     room.gameStatus = 'countdown';
+    room.isPaused = false;
     room.scores = {};
+    ack({ ok: true });
+    emitRoomState(normalizedCode);
+  });
+
+  socket.on('toggle_pause', ({ roomCode, playerId, paused }, ack = () => {}) => {
+    const normalizedCode = (roomCode || '').toUpperCase();
+    const room = rooms.get(normalizedCode);
+    if (!room) {
+      ack({ ok: false, error: 'Room not found.' });
+      return;
+    }
+    const host = room.players.find((player) => player.isHost);
+    if (!host || host.id !== playerId) {
+      ack({ ok: false, error: 'Only the host can pause the game.' });
+      return;
+    }
+    if (room.gameStatus !== 'playing') {
+      ack({ ok: false, error: 'Game is not currently running.' });
+      return;
+    }
+
+    room.isPaused = Boolean(paused);
     ack({ ok: true });
     emitRoomState(normalizedCode);
   });
@@ -202,6 +227,7 @@ io.on('connection', (socket) => {
       totalScore: Number(score?.totalScore || 0),
     };
     room.gameStatus = 'finished';
+    room.isPaused = false;
 
     ack({ ok: true });
     emitRoomState(normalizedCode);
@@ -221,6 +247,7 @@ io.on('connection', (socket) => {
     }
 
     room.gameStatus = 'waiting';
+    room.isPaused = false;
     room.scores = {};
     ack({ ok: true });
     emitRoomState(normalizedCode);
