@@ -12,7 +12,7 @@ const COLOR_VALUES = {
 
 const INSTRUCTIONS = ['WORD', 'COLOR'];
 
-function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
+function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
   const [totalScore, setTotalScore] = useState(0); // Cumulative score across all rounds
@@ -24,7 +24,6 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const [roundTimeLeft, setRoundTimeLeft] = useState(null); // Total time for the round
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
-  const [playerScores, setPlayerScores] = useState({}); // Track scores per player
   const [flashColor, setFlashColor] = useState(null);
   const [showButtonText, setShowButtonText] = useState(true); // Track whether to show words or just colored squares
   const wordRef = useRef(null);
@@ -164,34 +163,9 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
   const endRound = useCallback(() => {
     setIsGameActive(false);
     setShowRoundEnd(true);
-    // Add current round score to total score
-    setTotalScore(prev => {
-      const newTotalScore = prev + score;
-      
-      // Update player scores (for multiplayer, this would sync with other players)
-      // For now, just track the current player's score
-      setPlayerScores(prevScores => {
-        const updated = { ...prevScores };
-        if (players && players.length > 0) {
-          players.forEach(player => {
-            if (!updated[player.id]) {
-              updated[player.id] = { nickname: player.nickname, nicknameColour: player.nicknameColour, totalScore: 0 };
-            }
-            // For now, only update current player's score
-            // In multiplayer, this would be synced via Firebase
-            if (player.nickname === 'You' || true) {
-              updated[player.id].totalScore = newTotalScore;
-            }
-          });
-        } else {
-          updated['current'] = { nickname: 'You', nicknameColour: '#ef4444', totalScore: newTotalScore };
-        }
-        return updated;
-      });
-      
-      return newTotalScore;
-    });
-  }, [score, players]);
+    // Add current round score to total score.
+    setTotalScore(prev => prev + score);
+  }, [score]);
 
   const startGame = () => {
     setIsGameActive(true);
@@ -267,13 +241,6 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
       }
     };
   }, [isGameActive, shouldToggleButtonDisplay, buttonToggleInterval, roundTimeLeft, showRoundEnd]);
-
-  useEffect(() => {
-    if (showRoundEnd && currentRound >= totalRounds) {
-      // All rounds complete
-      onGameEnd(playerScores);
-    }
-  }, [showRoundEnd, currentRound, totalRounds, onGameEnd, playerScores]);
 
   // Word timer countdown
   useEffect(() => {
@@ -380,7 +347,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
               <div className="leaderboard-list">
                 {players && players.length > 0 ? (
                   players.map((player) => {
-                    const playerScoreData = playerScores[player.id] || { totalScore: 0 };
+                    const isCurrentPlayer = player.id === currentPlayerId;
                     return (
                       <div key={player.id} className="leaderboard-item">
                         <span 
@@ -390,7 +357,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
                           {player.nickname}
                         </span>
                         <span className="leaderboard-score">
-                          {playerScoreData.totalScore || 0}
+                          {isCurrentPlayer ? totalScore : 0}
                         </span>
                       </div>
                     );
@@ -417,8 +384,7 @@ function Game({ gameSettings, players, onRoundEnd, onGameEnd, onLeaveRoom }) {
                   variant="primary"
                   className="play-again-btn"
                   onClick={() => {
-                    // Call onGameEnd to transition to end game screen
-                    onGameEnd(playerScores);
+                    onGameEnd({ totalScore });
                   }}
                 >
                   View Final Results

@@ -8,21 +8,41 @@ import './App.css';
 
 function App() {
   const gameState = useGameState();
-  const { gameStatus, roomCode, players, nickname, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, endGame } = gameState;
+  const { gameStatus, roomCode, players, nickname, playerId, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, endGame } = gameState;
   
   // Determine if current user is host
   const isHost = players.some(player => player.isHost && player.nickname === nickname);
 
-  const handleStartGame = () => {
-    startGame();
+  const handleStartGame = async () => {
+    try {
+      await startGame();
+    } catch (error) {
+      alert(error.message || 'Unable to start game.');
+    }
   };
 
-  const handleLeaveRoom = () => {
-    leaveRoom();
+  const handleLeaveRoom = async () => {
+    await leaveRoom();
   };
 
-  const handleBackToMenu = () => {
-    leaveRoom();
+  const handleBackToMenu = async () => {
+    await leaveRoom();
+  };
+
+  const handleBeginPlaying = async () => {
+    try {
+      await beginPlaying();
+    } catch (error) {
+      alert(error.message || 'Unable to begin game.');
+    }
+  };
+
+  const handleEndGame = async (finalScores) => {
+    try {
+      await endGame(finalScores);
+    } catch (error) {
+      alert(error.message || 'Unable to submit score.');
+    }
   };
 
   return (
@@ -39,21 +59,26 @@ function App() {
           onUpdateSettings={(settings) => gameState.setGameSettings(settings)}
         />
       ) : gameStatus === 'countdown' ? (
-        <Countdown onComplete={beginPlaying} />
+        <Countdown onComplete={handleBeginPlaying} />
       ) : gameStatus === 'playing' ? (
         <Game 
           gameSettings={gameSettings}
           players={players}
-          onRoundEnd={endGame}
-          onGameEnd={endGame}
-          onLeaveRoom={handleLeaveRoom}
+          currentPlayerId={playerId}
+          onGameEnd={handleEndGame}
         />
       ) : gameStatus === 'finished' ? (
         <EndGame
           roomCode={roomCode}
           players={players}
           playerScores={playerScores}
-          onPlayAgain={() => returnToWaitingRoom()}
+          onPlayAgain={async () => {
+            try {
+              await returnToWaitingRoom();
+            } catch (error) {
+              alert(error.message || 'Only the host can reset the room.');
+            }
+          }}
           onLeaveRoom={handleLeaveRoom}
         />
       ) : (

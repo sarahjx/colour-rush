@@ -1,19 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { generateUniqueRoomCode } from '../utils/roomCodeGenerator';
+import { connectSocket, emitWithAck } from '../services/socketClient';
+
+const STORAGE_KEYS = {
+  nickname: 'colorRush_nickname',
+  colour: 'colorRush_nicknameColour',
+  playerId: 'colorRush_playerId',
+};
+
+function createPlayerId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `player_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+}
 
 function useGameState() {
-  // Load from local storage on mount
+  // Load from local storage on mount.
   const loadFromStorage = () => {
     try {
-      const savedNickname = localStorage.getItem('colorRush_nickname');
-      const savedColour = localStorage.getItem('colorRush_nicknameColour');
+      const savedNickname = localStorage.getItem(STORAGE_KEYS.nickname);
+      const savedColour = localStorage.getItem(STORAGE_KEYS.colour);
+      const savedPlayerId = localStorage.getItem(STORAGE_KEYS.playerId) || createPlayerId();
+
+      localStorage.setItem(STORAGE_KEYS.playerId, savedPlayerId);
       return {
         nickname: savedNickname || '',
-        colour: savedColour || '#ef4444'
+        colour: savedColour || '#ef4444',
+        playerId: savedPlayerId,
       };
     } catch (error) {
       console.error('Error loading from local storage:', error);
-      return { nickname: '', colour: '#ef4444' };
+      return { nickname: '', colour: '#ef4444', playerId: createPlayerId() };
     }
   };
 
@@ -22,6 +40,7 @@ function useGameState() {
   // Game state
   const [nickname, setNickname] = useState(savedData.nickname);
   const [nicknameColour, setNicknameColour] = useState(savedData.colour);
+  const [playerId] = useState(savedData.playerId);
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
   const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, countdown, playing, finished
@@ -31,18 +50,47 @@ function useGameState() {
     difficulty: 'normal', // easy, normal, difficult
     rounds: 3 // Default number of rounds
   });
+  const playerIdRef = useRef(savedData.playerId);
 
-  // Save to local storage
+  // Save profile fields to local storage.
   const saveToStorage = (name, colour) => {
     try {
-      if (name) localStorage.setItem('colorRush_nickname', name);
-      if (colour) localStorage.setItem('colorRush_nicknameColour', colour);
+      if (name) localStorage.setItem(STORAGE_KEYS.nickname, name);
+      if (colour) localStorage.setItem(STORAGE_KEYS.colour, colour);
     } catch (error) {
       console.error('Error saving to local storage:', error);
     }
   };
 
-  // Functions
+  const applyRoomState = (room) => {
+    if (!room) return;
+    setRoomCode(room.roomCode || '');
+    setPlayers(room.players || []);
+    setGameSettings(room.gameSettings || { difficulty: 'normal', rounds: 3 });
+    setGameStatus(room.gameStatus || 'idle');
+    setPlayerScores(room.scores || {});
+  };
+
+  useEffect(() => {
+    const socket = connectSocket();
+
+    const handleRoomState = (room) => {
+      applyRoomState(room);
+    };
+
+    socket.on('room_state', handleRoomState);
+    return () => {
+      socket.off('room_state', handleRoomState);
+    };
+  }, []);
+
+  const currentPlayer = () => ({
+    id: playerIdRef.current,
+    nickname: nickname.trim(),
+    nicknameColour,
+  });
+
+  // Functions.
   const handleSetNickname = (name) => {
     setNickname(name);
   };
@@ -56,80 +104,190 @@ function useGameState() {
   };
 
   const createRoom = async (settings = null) => {
-    // Generate a unique room code
-    const code = await generateUniqueRoomCode();
-    setRoomCode(code);
-    if (settings) {
-      setGameSettings(settings);
+    const player = currentPlayer();
+    if (!player.nickname) {
+      throw new Error('Nickname is required.');
     }
-    setPlayers([{ nickname, nicknameColour, id: Date.now(), isHost: true }]);
-    setGameStatus('waiting');
-    setScores({});
-    return code;
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const code = await generateUniqueRoomCode();
+      const response = await emitWithAck('create_room', {
+        roomCode: code,
+        player,
+        settings,
+      });
+
+      if (response?.ok) {
+        applyRoomState(response.room);
+        setScores({});
+        return code;
+      }
+
+      if (response?.error !== 'Room already exists.') {
+        throw new Error(response?.error || 'Unable to create room.');
+      }
+    }
+
+    throw new Error('Unable to create a unique room. Please try again.');
   };
 
-  const joinRoom = (code) => {
-    setRoomCode(code.toUpperCase());
-    // TODO: Add player to room via Firebase
-    // For now, add current player to players list
-    setPlayers(prev => [...prev, { nickname, nicknameColour, id: Date.now(), isHost: false }]);
-    setGameStatus('waiting');
+  const joinRoom = async (code) => {
+    const player = currentPlayer();
+    if (!player.nickname) {
+      throw new Error('Nickname is required.');
+    }
+
+    const response = await emitWithAck('join_room', {
+      roomCode: code.toUpperCase(),
+      player,
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to join room.');
+    }
+
+    applyRoomState(response.room);
     setScores({});
   };
 
-  const leaveRoom = () => {
+  const leaveRoom = async () => {
+    if (roomCode) {
+      try {
+        await emitWithAck('leave_room', {
+          roomCode,
+          playerId: playerIdRef.current,
+        });
+      } catch (error) {
+        console.error('Error leaving room:', error);
+      }
+    }
+
     setRoomCode('');
     setPlayers([]);
     setGameStatus('idle');
     setScores({});
     setPlayerScores({});
-    // TODO: Remove player from room via Firebase
   };
 
-  const returnToWaitingRoom = () => {
-    setGameStatus('waiting');
-    setPlayerScores({});
-    // Reset game state but keep room and players
-  };
-
-  const startGame = () => {
-    setGameStatus('countdown');
-  };
-
-  const beginPlaying = () => {
-    setGameStatus('playing');
-  };
-
-  const endGame = (finalScores) => {
-    // finalScores can be either a number (old format) or an object with player scores
-    if (typeof finalScores === 'object' && finalScores !== null) {
-      setPlayerScores(finalScores);
-      // Also update scores for backward compatibility
-      if (finalScores[nickname]) {
-        setScores(prev => ({ ...prev, [nickname]: finalScores[nickname].totalScore || 0 }));
-      }
-    } else {
-      // Old format - just a number
-      setScores(prev => ({ ...prev, [nickname]: finalScores }));
+  const returnToWaitingRoom = async () => {
+    if (!roomCode) {
+      setGameStatus('waiting');
+      setPlayerScores({});
+      return;
     }
-    setGameStatus('finished');
+
+    const response = await emitWithAck('return_to_waiting', {
+      roomCode,
+      playerId: playerIdRef.current,
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to reset room.');
+    }
   };
+
+  const startGame = async () => {
+    const response = await emitWithAck('start_game', {
+      roomCode,
+      playerId: playerIdRef.current,
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to start game.');
+    }
+  };
+
+  const beginPlaying = async () => {
+    const response = await emitWithAck('set_game_status', {
+      roomCode,
+      status: 'playing',
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to begin game.');
+    }
+  };
+
+  const endGame = async (finalScores) => {
+    let totalScore = 0;
+    if (typeof finalScores === 'number') {
+      totalScore = finalScores;
+    } else if (finalScores && typeof finalScores.totalScore === 'number') {
+      totalScore = finalScores.totalScore;
+    }
+
+    setPlayerScores((prev) => ({
+      ...prev,
+      [playerIdRef.current]: {
+        nickname,
+        nicknameColour,
+        totalScore,
+      },
+    }));
+    setScores((prev) => ({ ...prev, [nickname]: totalScore }));
+
+    if (!roomCode) {
+      setGameStatus('finished');
+      return;
+    }
+
+    const response = await emitWithAck('submit_score', {
+      roomCode,
+      playerId: playerIdRef.current,
+      score: { totalScore },
+    });
+
+    if (!response?.ok) {
+      throw new Error(response?.error || 'Unable to submit score.');
+    }
+  };
+
+  useEffect(() => {
+    if (!playerScores[playerIdRef.current]) {
+      return;
+    }
+
+    setScores((prev) => ({
+      ...prev,
+      [nickname]: playerScores[playerIdRef.current].totalScore || 0,
+    }));
+  }, [nickname, playerScores]);
+
+  useEffect(() => {
+    playerIdRef.current = playerId;
+  }, [playerId]);
 
   return {
-    // State
+    // State.
     nickname,
     nicknameColour,
+    playerId,
     roomCode,
     players,
     gameStatus,
     scores,
     playerScores,
     gameSettings,
-    // Functions
+    // Functions.
     setNickname: handleSetNickname,
     setNicknameColour: handleSetNicknameColour,
     saveNicknameAndColour,
-    setGameSettings,
+    setGameSettings: async (settings) => {
+      if (!roomCode) {
+        setGameSettings(settings);
+        return;
+      }
+
+      const response = await emitWithAck('update_settings', {
+        roomCode,
+        playerId: playerIdRef.current,
+        settings,
+      });
+
+      if (!response?.ok) {
+        throw new Error(response?.error || 'Unable to update settings.');
+      }
+    },
     createRoom,
     joinRoom,
     leaveRoom,

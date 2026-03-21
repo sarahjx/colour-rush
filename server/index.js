@@ -201,10 +201,7 @@ io.on('connection', (socket) => {
       nicknameColour: player.nicknameColour,
       totalScore: Number(score?.totalScore || 0),
     };
-
-    if (Object.keys(room.scores).length >= room.players.length) {
-      room.gameStatus = 'finished';
-    }
+    room.gameStatus = 'finished';
 
     ack({ ok: true });
     emitRoomState(normalizedCode);

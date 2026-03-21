@@ -67,6 +67,7 @@ function Landing({ gameState }) {
       return code;
     } catch (error) {
       console.error('Error creating room:', error);
+      alert(error.message || 'Unable to create room.');
       throw error;
     }
   };
@@ -75,15 +76,19 @@ function Landing({ gameState }) {
     setIsCreateRoomModalOpen(false);
   };
 
-  const handleJoin = (e) => {
+  const handleJoin = async (e) => {
     if (!nickname.trim()) {
       return;
     }
-    // TODO: Get room code from user input
+
     const roomCode = prompt('Enter room code:');
     if (roomCode && roomCode.trim()) {
-      joinRoom(roomCode.trim());
-      console.log('Joined room:', roomCode);
+      try {
+        await joinRoom(roomCode.trim());
+      } catch (error) {
+        console.error('Error joining room:', error);
+        alert(error.message || 'Unable to join room.');
+      }
     }
   };
 
