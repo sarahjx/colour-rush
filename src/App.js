@@ -25,10 +25,6 @@ function App() {
     await leaveRoom();
   };
 
-  const handleBackToMenu = async () => {
-    await leaveRoom();
-  };
-
   const handleBeginPlaying = async () => {
     try {
       await beginPlaying();
@@ -63,7 +59,6 @@ function App() {
           gameSettings={gameSettings}
           onStartGame={handleStartGame}
           onLeaveRoom={handleLeaveRoom}
-          onBackToHome={handleBackToMenu}
           onUpdateSettings={(settings) => gameState.setGameSettings(settings)}
         />
       ) : gameStatus === 'countdown' ? (

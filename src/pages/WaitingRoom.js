@@ -4,7 +4,7 @@ import Modal from '../components/Modal';
 import CreateRoomModal from '../components/CreateRoomModal';
 import './WaitingRoom.css';
 
-function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onStartGame, onLeaveRoom, onBackToHome, onUpdateSettings }) {
+function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onStartGame, onLeaveRoom, onUpdateSettings }) {
   const [copied, setCopied] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -96,9 +96,9 @@ function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onS
               <Button
                 variant="secondary"
                 className="back-to-home-btn"
-                onClick={onBackToHome}
+                onClick={onLeaveRoom}
               >
-                Back to Home
+                Leave Lobby
               </Button>
             </>
           ) : (
@@ -109,9 +109,9 @@ function WaitingRoom({ roomCode, players = [], isHost = false, gameSettings, onS
               <Button
                 variant="secondary"
                 className="back-to-home-btn"
-                onClick={onBackToHome}
+                onClick={onLeaveRoom}
               >
-                Back to Home
+                Leave Lobby
               </Button>
             </>
           )}
