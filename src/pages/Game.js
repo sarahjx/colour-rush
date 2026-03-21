@@ -292,6 +292,10 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
     }
   };
 
+  const instructionText = currentInstruction === 'WORD'
+    ? 'Match the WORD text'
+    : 'Match the TEXT color';
+
   const startNextRound = () => {
     if (currentRound < totalRounds) {
       const nextRound = currentRound + 1;
@@ -409,7 +413,7 @@ function Game({ gameSettings, players, currentPlayerId, onGameEnd }) {
               ref={instructionRef}
               className="instruction"
             >
-              Click the {currentInstruction}!
+              {instructionText}
             </div>
             <div 
               ref={wordRef}
