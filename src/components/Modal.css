@@ -70,7 +70,6 @@
   color: var(--color-text);
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .modal-content {
     padding: 1.5rem;

@@ -17,7 +17,6 @@ function EndGame({ roomCode, players = [], playerScores = {}, onPlayAgain, onLea
     }
   };
 
-  // Sort players by score (highest first)
   const sortedPlayers = players.length > 0 
     ? [...players].sort((a, b) => {
         const scoreA = playerScores[a.id]?.totalScore || 0;

@@ -96,7 +96,6 @@ function Landing({ gameState }) {
     if (!nickname.trim()) {
       return;
     }
-    // TODO: Implement practice mode functionality
     console.log('Practice mode with nickname:', nickname);
   };
 

@@ -11,7 +11,6 @@ function Countdown({ onComplete }) {
       }, 1000);
       return () => clearTimeout(timer);
     } else {
-      // Countdown complete, wait a moment then call onComplete
       const timer = setTimeout(() => {
         onComplete();
       }, 500);

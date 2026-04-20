@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { gsap } from 'gsap';
-import './Button.css';
 
 function Button({ 
   children, 
@@ -13,7 +12,6 @@ function Button({
 }) {
   const buttonRef = useRef(null);
 
-  // JavaScript event handlers
   const handleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
