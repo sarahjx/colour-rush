@@ -189,11 +189,11 @@
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
 }
 
-.pause-overlay h3 {
+.pause-overlay__title {
   margin: 0 0 0.5rem;
 }
 
-.pause-overlay p {
+.pause-overlay__message {
   margin: 0;
   font-weight: 700;
 }

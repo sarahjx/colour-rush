@@ -478,8 +478,10 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
           <>
             {isPaused && (
               <div className="pause-overlay">
-                <h3>Game Paused</h3>
-                <p>{isHost ? 'Press Resume when everyone is ready.' : 'Waiting for host to resume.'}</p>
+                <h3 className="pause-overlay__title">Game Paused</h3>
+                <p className="pause-overlay__message">
+                  {isHost ? 'Press Resume when everyone is ready.' : 'Waiting for host to resume.'}
+                </p>
               </div>
             )}
             <div 
