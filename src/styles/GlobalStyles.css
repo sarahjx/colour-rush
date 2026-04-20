@@ -1,33 +1,26 @@
-/* CSS Variables for Colors */
 :root {
-  /* Primary Colors - Red */
   --color-primary: #ef4444;
   --color-primary-light: #f87171;
   --color-primary-dark: #dc2626;
   
-  /* Secondary Colors - Blue */
   --color-secondary: #3b82f6;
   --color-secondary-light: #60a5fa;
   --color-secondary-dark: #2563eb;
   
-  /* Accent Colors - Green */
   --color-accent: #10b981;
   --color-accent-light: #34d399;
   --color-accent-dark: #059669;
   
-  /* Neutral Colors */
   --color-white: #ffffff;
   --color-black: #000000;
   --color-gray-light: #f3f4f6;
   --color-gray: #9ca3af;
   --color-gray-dark: #4b5563;
   
-  /* Text Colors */
   --color-text: #000000;
   --color-text-light: #6b7280;
   --color-text-inverse: #ffffff;
   
-  /* Responsive Breakpoints */
   --breakpoint-xs: 320px;
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
@@ -36,7 +29,6 @@
   --breakpoint-2xl: 1536px;
 }
 
-/* Gradient Background */
 body {
   background-color: var(--color-white);
   background-image: 
@@ -50,7 +42,6 @@ body {
   min-height: 100vh;
 }
 
-/* Typography Settings */
 * {
   font-family: 'Slackey', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -104,7 +95,6 @@ p {
   color: var(--color-text);
 }
 
-/* Button Base Styles - Cartoony */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -158,7 +148,6 @@ p {
   cursor: pointer;
 }
 
-/* Card/Container Styles - Cartoony */
 .card {
   background: var(--color-white);
   border-radius: 2rem;
@@ -193,10 +182,6 @@ p {
   padding: 4rem 0;
 }
 
-/* Responsive Breakpoints */
-/* Mobile First Approach */
-
-/* Extra Small devices (phones, 320px and up) */
 @media (min-width: 320px) {
   .container {
     padding: 0 1rem;
@@ -220,7 +205,6 @@ p {
   }
 }
 
-/* Small devices (landscape phones, 640px and up) */
 @media (min-width: 640px) {
   .container {
     padding: 0 1.5rem;
@@ -244,7 +228,6 @@ p {
   }
 }
 
-/* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
   h1 {
     font-size: 3rem;
@@ -259,7 +242,6 @@ p {
   }
 }
 
-/* Large devices (desktops, 1024px and up) */
 @media (min-width: 1024px) {
   .container {
     max-width: 1200px;
@@ -270,14 +252,12 @@ p {
   }
 }
 
-/* Extra large devices (large desktops, 1280px and up) */
 @media (min-width: 1280px) {
   .container {
     max-width: 1280px;
   }
 }
 
-/* 2X Large devices (larger desktops, 1536px and up) */
 @media (min-width: 1536px) {
   .container {
     max-width: 1536px;

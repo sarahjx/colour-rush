@@ -24,6 +24,8 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
   const [roundTimeLeft, setRoundTimeLeft] = useState(null); // Total time for the round
   const [isGameActive, setIsGameActive] = useState(false);
   const [showRoundEnd, setShowRoundEnd] = useState(false);
+  const [hasSubmittedFinalScore, setHasSubmittedFinalScore] = useState(false);
+  const [isSubmittingFinalScore, setIsSubmittingFinalScore] = useState(false);
   const [flashColor, setFlashColor] = useState(null);
   const [answerFeedback, setAnswerFeedback] = useState({ type: '', text: '' });
   const [showButtonText, setShowButtonText] = useState(true); // Track whether to show words or just colored squares
@@ -426,7 +428,7 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
             {currentRound < totalRounds ? (
               <Button
                 variant="primary"
-                className="next-round-btn"
+                className="round-action-btn round-action-btn--next"
                 onClick={startNextRound}
               >
                 Start Round {currentRound + 1}
@@ -435,13 +437,29 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
               <>
                 <Button
                   variant="primary"
-                  className="play-again-btn"
-                  onClick={() => {
-                    onGameEnd({ totalScore });
+                  className="round-action-btn round-action-btn--results"
+                  disabled={hasSubmittedFinalScore || isSubmittingFinalScore}
+                  onClick={async () => {
+                    if (hasSubmittedFinalScore || isSubmittingFinalScore) return;
+
+                    setIsSubmittingFinalScore(true);
+                    try {
+                      await onGameEnd({ totalScore });
+                      setHasSubmittedFinalScore(true);
+                    } finally {
+                      setIsSubmittingFinalScore(false);
+                    }
                   }}
                 >
-                  View Final Results
+                  {isSubmittingFinalScore
+                    ? 'Submitting Score...'
+                    : hasSubmittedFinalScore
+                      ? 'Score Submitted'
+                      : 'View Final Results'}
                 </Button>
+                {hasSubmittedFinalScore && (
+                  <p className="waiting-for-scores-text">Waiting for other players to submit...</p>
+                )}
               </>
             )}
           </div>
@@ -460,8 +478,10 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
           <>
             {isPaused && (
               <div className="pause-overlay">
-                <h3>Game Paused</h3>
-                <p>{isHost ? 'Press Resume when everyone is ready.' : 'Waiting for host to resume.'}</p>
+                <h3 className="pause-overlay__title">Game Paused</h3>
+                <p className="pause-overlay__message">
+                  {isHost ? 'Press Resume when everyone is ready.' : 'Waiting for host to resume.'}
+                </p>
               </div>
             )}
             <div 

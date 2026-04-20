@@ -281,7 +281,6 @@
   color: var(--color-primary);
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .info-button {
     top: 1rem !important;

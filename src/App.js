@@ -10,7 +10,6 @@ function App() {
   const gameState = useGameState();
   const { gameStatus, roomCode, players, playerId, isPaused, gameSettings, playerScores, leaveRoom, returnToWaitingRoom, startGame, beginPlaying, togglePauseGame, endGame } = gameState;
   
-  // Determine if current user is host.
   const isHost = players.some((player) => player.isHost && player.id === playerId);
 
   const handleStartGame = async () => {
@@ -35,9 +34,10 @@ function App() {
 
   const handleEndGame = async (finalScores) => {
     try {
-      await endGame(finalScores);
+      return await endGame(finalScores);
     } catch (error) {
       alert(error.message || 'Unable to submit score.');
+      throw error;
     }
   };
 

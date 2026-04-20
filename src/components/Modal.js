@@ -8,10 +8,8 @@ function Modal({ isOpen, onClose, children, title }) {
 
   useEffect(() => {
     if (isOpen) {
-      // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
 
-      // Animate modal in
       if (overlayRef.current && modalRef.current) {
         gsap.fromTo(
           overlayRef.current,

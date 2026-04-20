@@ -16,7 +16,6 @@ function createPlayerId() {
 }
 
 function useGameState() {
-  // Load from local storage on mount.
   const loadFromStorage = () => {
     try {
       const savedNickname = localStorage.getItem(STORAGE_KEYS.nickname);
@@ -37,24 +36,22 @@ function useGameState() {
 
   const savedData = loadFromStorage();
 
-  // Game state
   const [nickname, setNickname] = useState(savedData.nickname);
   const [nicknameColour, setNicknameColour] = useState(savedData.colour);
   const [playerId] = useState(savedData.playerId);
   const [roomCode, setRoomCode] = useState('');
   const [players, setPlayers] = useState([]);
-  const [gameStatus, setGameStatus] = useState('idle'); // idle, waiting, countdown, playing, finished
+  const [gameStatus, setGameStatus] = useState('idle');
   const [isPaused, setIsPaused] = useState(false);
   const [scores, setScores] = useState({});
-  const [playerScores, setPlayerScores] = useState({}); // Final player scores from game
+  const [playerScores, setPlayerScores] = useState({});
   const [gameSettings, setGameSettings] = useState({
-    difficulty: 'normal', // easy, normal, difficult
-    rounds: 3 // Default number of rounds
+    difficulty: 'normal',
+    rounds: 3
   });
   const playerIdRef = useRef(savedData.playerId);
   const roomSyncIntervalRef = useRef(null);
 
-  // Save profile fields to local storage.
   const saveToStorage = (name, colour) => {
     try {
       if (name) localStorage.setItem(STORAGE_KEYS.nickname, name);
@@ -85,7 +82,6 @@ function useGameState() {
         applyRoomState(response.room);
       }
     } catch (error) {
-      // Keep polling soft-failure only; realtime events may still arrive.
       console.debug('Room sync skipped:', error.message);
     }
   }, [applyRoomState, roomCode]);
@@ -109,7 +105,6 @@ function useGameState() {
     nicknameColour,
   });
 
-  // Functions.
   const handleSetNickname = (name) => {
     setNickname(name);
   };
@@ -262,6 +257,8 @@ function useGameState() {
     if (!response?.ok) {
       throw new Error(response?.error || 'Unable to submit score.');
     }
+
+    return response;
   };
 
   const togglePauseGame = async (paused) => {
@@ -300,7 +297,6 @@ function useGameState() {
       return;
     }
 
-    // Snapshot sync avoids stale player lists if a socket event is missed.
     syncRoomState(roomCode);
     roomSyncIntervalRef.current = setInterval(() => {
       syncRoomState(roomCode);
@@ -315,7 +311,6 @@ function useGameState() {
   }, [roomCode, syncRoomState]);
 
   return {
-    // State.
     nickname,
     nicknameColour,
     playerId,
@@ -326,7 +321,6 @@ function useGameState() {
     scores,
     playerScores,
     gameSettings,
-    // Functions.
     setNickname: handleSetNickname,
     setNicknameColour: handleSetNicknameColour,
     saveNicknameAndColour,

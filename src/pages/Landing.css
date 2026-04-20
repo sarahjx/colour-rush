@@ -168,7 +168,6 @@
   cursor: pointer !important;
 }
 
-/* Responsive adjustments */
 @media (min-width: 640px) {
   .landing-title {
     font-size: 4rem;

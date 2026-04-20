@@ -8,7 +8,6 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialDiffi
   const [rounds, setRounds] = useState(initialRounds || 3);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Update state when initial values change
   useEffect(() => {
     if (initialDifficulty !== undefined) setDifficulty(initialDifficulty);
     if (initialRounds !== undefined) setRounds(initialRounds);
@@ -19,7 +18,6 @@ function CreateRoomModal({ isOpen, onClose, onCreateRoom, nickname, initialDiffi
     try {
       const settings = { difficulty, rounds: parseInt(rounds) };
       await onCreateRoom(settings);
-      // Modal will close and navigation happens via App.js
       handleClose();
     } catch (error) {
       console.error('Error creating room:', error);
