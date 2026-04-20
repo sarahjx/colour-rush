@@ -335,9 +335,7 @@
   color: var(--color-primary);
 }
 
-.next-round-btn,
-.play-again-btn,
-.leave-room-btn {
+.round-action-btn {
   font-size: 2rem;
   padding: 1.5rem 4rem;
   font-weight: 900;
@@ -371,7 +369,7 @@
     font-size: 1.25rem;
   }
 
-  .next-round-btn {
+  .round-action-btn {
     font-size: 1.5rem;
     padding: 1rem 2rem;
   }

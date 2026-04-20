@@ -428,7 +428,7 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
             {currentRound < totalRounds ? (
               <Button
                 variant="primary"
-                className="next-round-btn"
+                className="round-action-btn round-action-btn--next"
                 onClick={startNextRound}
               >
                 Start Round {currentRound + 1}
@@ -437,7 +437,7 @@ function Game({ gameSettings, players, currentPlayerId, isHost, isPaused, onTogg
               <>
                 <Button
                   variant="primary"
-                  className="play-again-btn"
+                  className="round-action-btn round-action-btn--results"
                   disabled={hasSubmittedFinalScore || isSubmittingFinalScore}
                   onClick={async () => {
                     if (hasSubmittedFinalScore || isSubmittingFinalScore) return;
